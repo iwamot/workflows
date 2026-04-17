@@ -52,7 +52,7 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           if [ -f mise.toml ]; then
-            uv_version=$(python3 -c "import tomllib; d=tomllib.load(open('mise.toml','rb')); print(d.get('tools', {}).get('aqua:astral-sh/uv', ''))" 2>/dev/null || true)
+            uv_version=$(python3 -c "import tomllib; d=tomllib.load(open('mise.toml','rb')); t=d.get('tools', {}).get('aqua:astral-sh/uv', ''); print(t.get('version', '') if isinstance(t, dict) else t)" 2>/dev/null || true)
             if [ -n "$uv_version" ]; then
               printf 'RENOVATE_CONSTRAINTS={"uv":"%s"}\n' "$uv_version" >> "$GITHUB_ENV"
             fi
