@@ -61,6 +61,14 @@ on:
   schedule:
     - cron: '0 * * * *'
   workflow_dispatch:
+    inputs:
+      log-level:
+        description: 'Log level'
+        default: 'info'
+        type: choice
+        options:
+          - info
+          - debug
 
 permissions:
   contents: read
@@ -68,6 +76,8 @@ permissions:
 jobs:
   renovate:
     uses: iwamot/workflows/.github/workflows/renovate.yml@<sha> # vX.X.X
+    with:
+      log-level: ${{ inputs.log-level || 'info' }}
 ```
 
 ## Validation

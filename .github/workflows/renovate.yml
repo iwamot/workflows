@@ -2,6 +2,11 @@ name: Renovate
 
 on:
   workflow_call:
+    inputs:
+      log-level:
+        description: 'Log level'
+        type: string
+        default: 'info'
   push:
     branches: [main]
   schedule:
