@@ -78,6 +78,9 @@ jobs:
     uses: iwamot/workflows/.github/workflows/renovate.yml@<sha> # vX.X.X
     with:
       log-level: ${{ inputs.log-level || 'info' }}
+    secrets:
+      RENOVATE_APP_ID: ${{ secrets.RENOVATE_APP_ID }}
+      RENOVATE_PRIVATE_KEY: ${{ secrets.RENOVATE_PRIVATE_KEY }}
 ```
 
 ## Validation
