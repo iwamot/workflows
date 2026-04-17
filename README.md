@@ -6,28 +6,20 @@ iwamot's shared reusable GitHub Actions workflows.
 
 | Workflow | Purpose |
 |----------|---------|
+| `dependabot-auto-merge.yml` | Enable auto-merge for non-major Dependabot PRs. |
 | `dependency-review.yml` | Run `actions/dependency-review-action` on pull requests. |
 
 ## Usage
 
-In your repository's `.github/workflows/dependency-review.yml`:
+Call a reusable workflow at the job level:
 
 ```yaml
-name: 'Dependency review'
-on:
-  pull_request:
-    branches: [main]
-
-permissions:
-  contents: read
-  pull-requests: write
-
 jobs:
   dependency-review:
-    uses: iwamot/workflows/.github/workflows/dependency-review.yml@<sha> # v0.1.0
+    uses: iwamot/workflows/.github/workflows/dependency-review.yml@<sha> # vX.X.X
 ```
 
-Pin to a commit SHA with a version comment so Renovate can track updates.
+The caller provides the triggers and workflow-level `permissions`.
 
 ## Validation
 
