@@ -1,6 +1,7 @@
 name: Renovate
 
 on:
+  workflow_call:
   push:
     branches: [main]
   schedule:
