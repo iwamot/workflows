@@ -12,6 +12,10 @@ on:
         required: true
       RENOVATE_PRIVATE_KEY:
         required: true
+      DOCKERHUB_USERNAME:
+        required: false
+      DOCKERHUB_TOKEN:
+        required: false
   push:
     branches: [main]
   schedule:
@@ -41,6 +45,21 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
+
+      - name: Compose Renovate env
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ -f mise.toml ]; then
+            uv_version=$(python3 -c "import tomllib; d=tomllib.load(open('mise.toml','rb')); print(d.get('tools', {}).get('aqua:astral-sh/uv', ''))" 2>/dev/null || true)
+            if [ -n "$uv_version" ]; then
+              printf 'RENOVATE_CONSTRAINTS={"uv":"%s"}\n' "$uv_version" >> "$GITHUB_ENV"
+            fi
+          fi
+          if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
+            printf 'RENOVATE_HOST_RULES=[{"matchHost":"dhi.io","hostType":"docker","username":"%s","password":"%s"}]\n' "$DOCKERHUB_USERNAME" "$DOCKERHUB_TOKEN" >> "$GITHUB_ENV"
+          fi
 
       - name: Generate GitHub App token
         id: app-token
