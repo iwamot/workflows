@@ -6,6 +6,7 @@ iwamot's shared reusable GitHub Actions workflows.
 
 | Workflow | Purpose |
 |----------|---------|
+| `ci.yml` | Run `validate.sh` under mise, with optional Codecov upload. |
 | `dependabot-auto-merge.yml` | Enable auto-merge for non-major Dependabot PRs. |
 | `dependency-review.yml` | Run `actions/dependency-review-action` on pull requests. |
 | `renovate.yml` | Run Renovate with GitHub App authentication. |
@@ -13,6 +14,30 @@ iwamot's shared reusable GitHub Actions workflows.
 ## Usage
 
 Each workflow is invoked from a caller workflow via `uses:` at the job level. The caller defines its own triggers and workflow-level `permissions`.
+
+### `ci.yml`
+
+Expects a `mise.toml` with `min_version` at the caller's repository root and a `validate.sh` script. Set `upload-coverage: true` and grant `id-token: write` at the caller's workflow level to upload coverage to Codecov via OIDC.
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write  # only needed when upload-coverage is true
+
+jobs:
+  build:
+    uses: iwamot/workflows/.github/workflows/ci.yml@<sha> # vX.X.X
+    with:
+      upload-coverage: true  # omit or set false to skip the Codecov step
+```
 
 ### `dependabot-auto-merge.yml`
 
