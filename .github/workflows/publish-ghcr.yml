@@ -48,17 +48,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check dhi.io credentials
-        id: dhi-check
+      - name: Login to Docker Hardened Images
+        if: env.DOCKERHUB_USERNAME != ''
         env:
           DOCKERHUB_USERNAME: ${{ secrets.dockerhub_username }}
-        run: |
-          if [ -n "$DOCKERHUB_USERNAME" ]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Login to Docker Hardened Images
-        if: steps.dhi-check.outputs.enabled == 'true'
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: dhi.io
