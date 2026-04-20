@@ -70,38 +70,14 @@ jobs:
           registry_image: ${{ env.REGISTRY_IMAGE }}
           platform: ${{ matrix.platform }}
 
-  merge:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      packages: write
-    needs:
-      - publish-ghcr
-    outputs:
-      version: ${{ steps.merge.outputs.version }}
-      digest: ${{ steps.merge.outputs.digest }}
-    steps:
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - id: merge
-        uses: iwamot/actions/docker-merge-manifest@2ed40fde20f402e4f916d6727dbe029c236b57b1 # v0.1.3
-        with:
-          registry_image: ${{ env.REGISTRY_IMAGE }}
-
-  sign:
+  merge-and-sign:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       id-token: write
       packages: write
     needs:
-      - merge
+      - publish-ghcr
     steps:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
@@ -110,7 +86,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: iwamot/actions/docker-sign-sbom@2ed40fde20f402e4f916d6727dbe029c236b57b1 # v0.1.3
+      - uses: iwamot/actions/docker-merge-and-sign@4af61e2e53c86f9f8ae386c6a06ee2ac8f466690 # v0.2.0
         with:
           registry_image: ${{ env.REGISTRY_IMAGE }}
-          digest: ${{ needs.merge.outputs.digest }}
