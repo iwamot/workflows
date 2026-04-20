@@ -7,6 +7,10 @@ on:
         description: 'Log level'
         type: string
         default: 'info'
+      environment:
+        description: 'GitHub Actions environment to run in'
+        type: string
+        default: production
     secrets:
       RENOVATE_APP_ID:
         required: true
@@ -37,7 +41,7 @@ jobs:
   renovate:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment: production
+    environment: ${{ inputs.environment || 'production' }}
     permissions:
       contents: read
     steps:
