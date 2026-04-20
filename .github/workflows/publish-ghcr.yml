@@ -65,7 +65,7 @@ jobs:
           username: ${{ secrets.dockerhub_username }}
           password: ${{ secrets.dockerhub_token }}
 
-      - uses: iwamot/actions/docker-build-digest@2ed40fde20f402e4f916d6727dbe029c236b57b1 # v0.1.3
+      - uses: iwamot/actions/docker-build-digest@4af61e2e53c86f9f8ae386c6a06ee2ac8f466690 # v0.2.0
         with:
           registry_image: ${{ env.REGISTRY_IMAGE }}
           platform: ${{ matrix.platform }}
