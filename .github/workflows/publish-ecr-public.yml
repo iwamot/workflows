@@ -20,7 +20,7 @@ env:
   AWS_REGION: us-east-1
 
 jobs:
-  build:
+  publish-ecr-public:
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 10
     environment: production
@@ -103,7 +103,7 @@ jobs:
       contents: read
       id-token: write
     needs:
-      - build
+      - publish-ecr-public
     outputs:
       version: ${{ steps.meta.outputs.version }}
       digest: ${{ steps.digest.outputs.digest }}
