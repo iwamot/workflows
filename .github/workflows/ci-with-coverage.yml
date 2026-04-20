@@ -15,21 +15,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          persist-credentials: false
-
-      - name: Get mise version from mise.toml
-        run: echo "MISE_VERSION=$(python3 -c "import tomllib; print(tomllib.load(open('mise.toml','rb'))['min_version'])")" >> "$GITHUB_ENV"
-
-      - name: Setup mise
-        uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
-        with:
-          version: ${{ env.MISE_VERSION }}
-
-      - name: Run validation script
-        run: bash validate.sh
+      - uses: iwamot/actions/mise-validate@f9102336df562777664ac310ce2dc9e4ca85941f # v0.1.0
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
