@@ -2,6 +2,11 @@ name: Publish to GitHub Container Registry
 
 on:
   workflow_call:
+    inputs:
+      environment:
+        description: 'GitHub Actions environment to run in'
+        type: string
+        default: production
     secrets:
       dockerhub_username:
         description: 'Docker Hub username for dhi.io login (optional)'
@@ -20,7 +25,7 @@ jobs:
   publish-ghcr:
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 10
-    environment: production
+    environment: ${{ inputs.environment }}
     permissions:
       contents: read
       packages: write
