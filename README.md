@@ -6,8 +6,8 @@ iwamot's shared reusable GitHub Actions workflows.
 
 | Workflow | Purpose |
 |----------|---------|
-| `ci.yml` | Run `validate.sh` under mise. |
-| `ci-with-coverage.yml` | Run `validate.sh` under mise and upload coverage to Codecov. |
+| `validate.yml` | Run `validate.sh` under mise. |
+| `validate-with-coverage.yml` | Run `validate.sh` under mise and upload coverage to Codecov. |
 | `dependabot-auto-merge.yml` | Enable auto-merge for non-major Dependabot PRs. |
 | `dependency-review.yml` | Run `actions/dependency-review-action` on pull requests. |
 | `renovate.yml` | Run Renovate with GitHub App authentication. |
@@ -18,7 +18,7 @@ iwamot's shared reusable GitHub Actions workflows.
 
 Each workflow is invoked from a caller workflow via `uses:` at the job level. The caller defines its own triggers and workflow-level `permissions`.
 
-### `ci.yml`
+### `validate.yml`
 
 Expects a `mise.toml` with `min_version` at the caller's repository root and a `validate.sh` script.
 
@@ -35,13 +35,13 @@ permissions:
   contents: read
 
 jobs:
-  ci:
-    uses: iwamot/workflows/.github/workflows/ci.yml@<sha> # vX.X.X
+  validate:
+    uses: iwamot/workflows/.github/workflows/validate.yml@<sha> # vX.X.X
 ```
 
-### `ci-with-coverage.yml`
+### `validate-with-coverage.yml`
 
-Same as `ci.yml`, with an additional Codecov upload step using OIDC. Requires `id-token: write` at the caller's workflow level.
+Same as `validate.yml`, with an additional Codecov upload step using OIDC. Requires `id-token: write` at the caller's workflow level.
 
 ```yaml
 name: CI
@@ -57,8 +57,8 @@ permissions:
   id-token: write
 
 jobs:
-  ci:
-    uses: iwamot/workflows/.github/workflows/ci-with-coverage.yml@<sha> # vX.X.X
+  validate:
+    uses: iwamot/workflows/.github/workflows/validate-with-coverage.yml@<sha> # vX.X.X
 ```
 
 ### `dependabot-auto-merge.yml`
