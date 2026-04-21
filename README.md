@@ -6,60 +6,17 @@ iwamot's shared reusable GitHub Actions workflows.
 
 | Workflow | Purpose |
 |----------|---------|
-| `validate.yml` | Run `validate.sh` under mise. |
-| `validate-with-coverage.yml` | Run `validate.sh` under mise and upload coverage to Codecov. |
 | `dependabot-auto-merge.yml` | Enable auto-merge for non-major Dependabot PRs. |
 | `dependency-review.yml` | Run `actions/dependency-review-action` on pull requests. |
-| `renovate.yml` | Run Renovate with GitHub App authentication. |
-| `publish-ghcr.yml` | Build a multi-arch Docker image, push to `ghcr.io/<owner>/<repo>`, sign with cosign, and attach an SBOM attestation. |
 | `publish-ecr-public.yml` | Build a multi-arch Docker image, push to Amazon ECR Public, sign with cosign, and attach an SBOM attestation. |
+| `publish-ghcr.yml` | Build a multi-arch Docker image, push to `ghcr.io/<owner>/<repo>`, sign with cosign, and attach an SBOM attestation. |
+| `renovate.yml` | Run Renovate with GitHub App authentication. |
+| `validate.yml` | Run `validate.sh` under mise. |
+| `validate-with-coverage.yml` | Run `validate.sh` under mise and upload coverage to Codecov. |
 
 ## Usage
 
 Each workflow is invoked from a caller workflow via `uses:` at the job level. The caller defines its own triggers and workflow-level `permissions`.
-
-### `validate.yml`
-
-Expects a `mise.toml` with `min_version` at the caller's repository root and a `validate.sh` script.
-
-```yaml
-name: CI
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-  workflow_dispatch:
-
-permissions:
-  contents: read
-
-jobs:
-  validate:
-    uses: iwamot/workflows/.github/workflows/validate.yml@<sha> # vX.X.X
-```
-
-### `validate-with-coverage.yml`
-
-Same as `validate.yml`, with an additional Codecov upload step using OIDC. Requires `id-token: write` at the caller's workflow level.
-
-```yaml
-name: CI
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  id-token: write
-
-jobs:
-  validate:
-    uses: iwamot/workflows/.github/workflows/validate-with-coverage.yml@<sha> # vX.X.X
-```
 
 ### `dependabot-auto-merge.yml`
 
@@ -93,6 +50,70 @@ permissions:
 jobs:
   dependency-review:
     uses: iwamot/workflows/.github/workflows/dependency-review.yml@<sha> # vX.X.X
+```
+
+### `publish-ecr-public.yml`
+
+Same build/sign/SBOM pipeline as `publish-ghcr.yml`, but pushes to Amazon ECR Public (`us-east-1`) using OIDC to assume the IAM role passed via `aws_role_arn`.
+
+Requires `id-token: write` at the caller's workflow level. A `production` environment is used by default (override via the `environment` input).
+
+Required:
+
+- `registry_image` input: Full ECR Public image URI (e.g. `public.ecr.aws/xxxxxxxx/namespace/repo`).
+- `aws_role_arn` secret: IAM role ARN to assume via OIDC.
+
+```yaml
+name: Publish
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    uses: iwamot/workflows/.github/workflows/publish-ecr-public.yml@<sha> # vX.X.X
+    with:
+      registry_image: public.ecr.aws/xxxxxxxx/namespace/repo
+    secrets:
+      aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
+```
+
+### `publish-ghcr.yml`
+
+Build a multi-arch Docker image (linux/amd64, linux/arm64), push it to `ghcr.io/<owner>/<repo>`, then sign with cosign (keyless via OIDC) and attach a SPDX-JSON SBOM attestation. Uses the caller's `GITHUB_TOKEN` for GHCR login — no registry credentials required.
+
+Requires `packages: write` and `id-token: write` at the caller's workflow level. A `production` environment is used by default (override via the `environment` input).
+
+Optional behavior:
+
+- If `dockerhub_username` / `dockerhub_token` secrets are passed, `dhi.io` (Docker Hardened Images) login is performed before the build.
+
+```yaml
+name: Publish
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  publish:
+    uses: iwamot/workflows/.github/workflows/publish-ghcr.yml@<sha> # vX.X.X
+    secrets:
+      # Optional: enable dhi.io authentication during builds
+      dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+      dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
 ```
 
 ### `renovate.yml`
@@ -138,55 +159,38 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 ```
 
-### `publish-ghcr.yml`
+### `validate.yml`
 
-Build a multi-arch Docker image (linux/amd64, linux/arm64), push it to `ghcr.io/<owner>/<repo>`, then sign with cosign (keyless via OIDC) and attach a SPDX-JSON SBOM attestation. Uses the caller's `GITHUB_TOKEN` for GHCR login — no registry credentials required.
-
-Requires `packages: write` and `id-token: write` at the caller's workflow level. A `production` environment is used by default (override via the `environment` input).
-
-Optional behavior:
-
-- If `dockerhub_username` / `dockerhub_token` secrets are passed, `dhi.io` (Docker Hardened Images) login is performed before the build.
+Expects a `mise.toml` with `min_version` at the caller's repository root and a `validate.sh` script.
 
 ```yaml
-name: Publish
+name: Validate
 
 on:
   push:
-    tags: ['v*.*.*']
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
-  packages: write
-  id-token: write
 
 jobs:
-  publish:
-    uses: iwamot/workflows/.github/workflows/publish-ghcr.yml@<sha> # vX.X.X
-    secrets:
-      # Optional: enable dhi.io authentication during builds
-      dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
-      dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
+  validate:
+    uses: iwamot/workflows/.github/workflows/validate.yml@<sha> # vX.X.X
 ```
 
-### `publish-ecr-public.yml`
+### `validate-with-coverage.yml`
 
-Same build/sign/SBOM pipeline as `publish-ghcr.yml`, but pushes to Amazon ECR Public (`us-east-1`) using OIDC to assume the IAM role passed via `aws_role_arn`.
-
-Requires `id-token: write` at the caller's workflow level. A `production` environment is used by default (override via the `environment` input).
-
-Required:
-
-- `registry_image` input: Full ECR Public image URI (e.g. `public.ecr.aws/xxxxxxxx/namespace/repo`).
-- `aws_role_arn` secret: IAM role ARN to assume via OIDC.
+Same as `validate.yml`, with an additional Codecov upload step using OIDC. Requires `id-token: write` at the caller's workflow level.
 
 ```yaml
-name: Publish
+name: Validate
 
 on:
   push:
-    tags: ['v*.*.*']
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -194,12 +198,8 @@ permissions:
   id-token: write
 
 jobs:
-  publish:
-    uses: iwamot/workflows/.github/workflows/publish-ecr-public.yml@<sha> # vX.X.X
-    with:
-      registry_image: public.ecr.aws/xxxxxxxx/namespace/repo
-    secrets:
-      aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
+  validate:
+    uses: iwamot/workflows/.github/workflows/validate-with-coverage.yml@<sha> # vX.X.X
 ```
 
 ## Validation
