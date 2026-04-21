@@ -54,7 +54,7 @@ jobs:
         with:
           registry-type: public
 
-      - uses: iwamot/actions/docker-build-digest@4af61e2e53c86f9f8ae386c6a06ee2ac8f466690 # v0.2.0
+      - uses: iwamot/actions/docker-build-digest@0489968d51644c06c8e85c059a023722a9c0b057 # v0.2.1
         with:
           registry_image: ${{ env.REGISTRY_IMAGE }}
           platform: ${{ matrix.platform }}
@@ -80,6 +80,6 @@ jobs:
         with:
           registry-type: public
 
-      - uses: iwamot/actions/docker-merge-and-sign@4af61e2e53c86f9f8ae386c6a06ee2ac8f466690 # v0.2.0
+      - uses: iwamot/actions/docker-merge-and-sign@0489968d51644c06c8e85c059a023722a9c0b057 # v0.2.1
         with:
           registry_image: ${{ env.REGISTRY_IMAGE }}
