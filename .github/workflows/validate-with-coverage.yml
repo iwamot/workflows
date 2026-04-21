@@ -1,4 +1,4 @@
-name: CI with coverage
+name: Validate with coverage
 
 on:
   workflow_call:
@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  ci-with-coverage:
+  validate-with-coverage:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
