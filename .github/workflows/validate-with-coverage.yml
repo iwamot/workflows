@@ -15,7 +15,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: iwamot/actions/mise-validate@ede7d3fc079a3d2eda26b5c285dfa4b11d78b672 # v0.3.0
+      - uses: iwamot/actions/mise-validate@e4d25240128ef30fb69dbc5abd8888b2a85b5eb6 # v0.3.1
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
