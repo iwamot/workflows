@@ -11,7 +11,6 @@ iwamot's shared reusable GitHub Actions workflows.
 | `dependency-review.yml` | Run `actions/dependency-review-action` on pull requests. |
 | `publish-ecr-public.yml` | Build a multi-arch Docker image, push to Amazon ECR Public, sign with cosign, and attach an SBOM attestation. |
 | `publish-ghcr.yml` | Build a multi-arch Docker image, push to `ghcr.io/<owner>/<repo>`, sign with cosign, and attach an SBOM attestation. |
-| `publish-pypi.yml` | Build a Python package with `uv build` and publish it to PyPI via Trusted Publishing (OIDC). |
 | `renovate.yml` | Run Renovate with GitHub App authentication. |
 | `validate.yml` | Run `validate.sh` under mise. |
 | `validate-with-coverage.yml` | Run `validate.sh` under mise and upload coverage to Codecov. |
@@ -152,28 +151,6 @@ jobs:
       # Optional: enable dhi.io authentication during builds
       dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
       dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
-```
-
-### `publish-pypi.yml`
-
-Build a Python package with `uv build` and publish it to PyPI. Authentication uses [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/) (OIDC) — no API token required.
-
-Requires `id-token: write` at the caller's workflow level. A `production` environment is used by default (override via the `environment` input). The caller's repository must be configured as a trusted publisher on PyPI.
-
-```yaml
-name: Publish
-
-on:
-  push:
-    tags: ['v*.*.*']
-
-permissions:
-  contents: read
-  id-token: write
-
-jobs:
-  publish:
-    uses: iwamot/workflows/.github/workflows/publish-pypi.yml@<sha> # vX.X.X
 ```
 
 ### `renovate.yml`
