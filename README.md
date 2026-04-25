@@ -6,6 +6,7 @@ iwamot's shared reusable GitHub Actions workflows.
 
 | Workflow | Purpose |
 |----------|---------|
+| `compatibility-python.yml` | Run the caller's `compatibility.sh` across a matrix of Python versions. |
 | `dependabot-auto-merge.yml` | Enable auto-merge for non-major Dependabot PRs. |
 | `dependency-review.yml` | Run `actions/dependency-review-action` on pull requests. |
 | `publish-ecr-public.yml` | Build a multi-arch Docker image, push to Amazon ECR Public, sign with cosign, and attach an SBOM attestation. |
@@ -18,6 +19,44 @@ iwamot's shared reusable GitHub Actions workflows.
 ## Usage
 
 Each workflow is invoked from a caller workflow via `uses:` at the job level. The caller defines its own triggers and workflow-level `permissions`.
+
+### `compatibility-python.yml`
+
+Run a caller-provided `compatibility.sh` script under each Python version in the matrix. The matrix Python version is plumbed to `uv` via the `UV_PYTHON` environment variable (set at the job level), so the script itself does not need to thread the version through any command. What "compatibility" means (unit tests, packaging smoke test, end-to-end against fixtures, or any combination) is decided by the caller.
+
+The `mise` binary is preinstalled on the runner (no tools installed), so the caller's `compatibility.sh` is responsible for installing whatever it needs from `mise.toml` and activating mise. A typical script builds the wheel once and exercises it under the matrix Python in an isolated environment:
+
+```bash
+#!/bin/bash
+set -e
+
+mise install uv
+eval "$(mise activate bash)"
+
+uv build --wheel --out-dir dist
+uv run --isolated --no-project --with ./dist/*.whl <cli> <fixture>
+```
+
+The `python-versions` input is a JSON-encoded array of version strings.
+
+```yaml
+name: Compatibility
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility:
+    uses: iwamot/workflows/.github/workflows/compatibility-python.yml@<sha> # vX.X.X
+    with:
+      python-versions: '["3.11","3.12","3.13","3.14"]'
+```
 
 ### `dependabot-auto-merge.yml`
 
