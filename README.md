@@ -24,14 +24,14 @@ Each workflow is invoked from a caller workflow via `uses:` at the job level. Th
 
 Run a caller-provided `compatibility.sh` script under each Python version in the matrix. The matrix Python version is plumbed to `uv` via the `UV_PYTHON` environment variable (set at the job level), so the script itself does not need to thread the version through any command. What "compatibility" means (unit tests, packaging smoke test, end-to-end against fixtures, or any combination) is decided by the caller.
 
-The `mise` binary is preinstalled on the runner (no tools installed), so the caller's `compatibility.sh` is responsible for installing whatever it needs from `mise.toml` and activating mise. A typical script builds the wheel once and exercises it under the matrix Python in an isolated environment:
+The `mise` binary is preinstalled on the runner (no tools installed), so the caller's `compatibility.sh` is responsible for activating mise and installing whatever it needs from `mise.toml`. Use the canonical tool name that matches your `mise.toml` key (e.g. `aqua:astral-sh/uv`) — a short alias like `mise install uv` may install the binary but leave the shim inactive in a clean environment. A typical script builds the wheel once and exercises it under the matrix Python in an isolated environment:
 
 ```bash
 #!/bin/bash
 set -e
 
-mise install uv
 eval "$(mise activate bash)"
+mise install aqua:astral-sh/uv
 
 uv build --wheel --out-dir dist
 uv run --isolated --no-project --with ./dist/*.whl <cli> <fixture>
