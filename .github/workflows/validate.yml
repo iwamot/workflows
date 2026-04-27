@@ -17,4 +17,4 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: iwamot/actions/mise-validate@b7e018129d96b7170299c823014121079bce06d0 # v0.4.0
+      - uses: iwamot/actions/mise-validate@792bb6f7b66b5d046aa285d39303a0aa7b10f822 # v0.5.0

@@ -58,7 +58,7 @@ jobs:
           username: ${{ secrets.dockerhub_username }}
           password: ${{ secrets.dockerhub_token }}
 
-      - uses: iwamot/actions/docker-build-digest@b7e018129d96b7170299c823014121079bce06d0 # v0.4.0
+      - uses: iwamot/actions/docker-build-digest@792bb6f7b66b5d046aa285d39303a0aa7b10f822 # v0.5.0
         with:
           registry_image: ${{ env.REGISTRY_IMAGE }}
           platform: ${{ matrix.platform }}
@@ -79,6 +79,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: iwamot/actions/docker-merge-and-sign@b7e018129d96b7170299c823014121079bce06d0 # v0.4.0
+      - uses: iwamot/actions/docker-merge-and-sign@792bb6f7b66b5d046aa285d39303a0aa7b10f822 # v0.5.0
         with:
           registry_image: ${{ env.REGISTRY_IMAGE }}
