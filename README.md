@@ -6,6 +6,7 @@ iwamot's shared reusable GitHub Actions workflows.
 
 | Workflow | Purpose |
 |----------|---------|
+| `compatibility-node.yml` | Run the caller's `compatibility.sh` across a matrix of Node.js versions. |
 | `compatibility-python.yml` | Run the caller's `compatibility.sh` across a matrix of Python versions. |
 | `dependabot-auto-merge.yml` | Enable auto-merge for non-major Dependabot PRs. |
 | `dependency-review.yml` | Run `actions/dependency-review-action` on pull requests. |
@@ -18,6 +19,54 @@ iwamot's shared reusable GitHub Actions workflows.
 ## Usage
 
 Each workflow is invoked from a caller workflow via `uses:` at the job level. The caller defines its own triggers and workflow-level `permissions`.
+
+### `compatibility-node.yml`
+
+Run a caller-provided `compatibility.sh` script under each Node.js version in the matrix. The matrix Node.js version is plumbed to mise via the `MISE_NODE_VERSION` environment variable (set at the job level), so the script itself does not need to thread the version through any command. What "compatibility" means (unit tests, packaging smoke test, end-to-end against fixtures, or any combination) is decided by the caller.
+
+The `mise` binary is preinstalled on the runner (no tools installed), so the caller's `compatibility.sh` is responsible for activating mise and installing whatever it needs from `mise.toml`. A typical script builds the package once and exercises the packed tarball in an isolated directory:
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+eval "$(mise activate bash)"
+mise install
+
+bun install --frozen-lockfile
+bun run build
+
+TARBALL="$PWD/$(npm pack --silent)"
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"; rm -f "$TARBALL"' EXIT
+
+cd "$TMP"
+npm init --silent --yes > /dev/null
+npm install --silent --no-audit --no-fund "$TARBALL"
+
+./node_modules/.bin/<cli> --version
+```
+
+The `node-versions` input is a JSON-encoded array of version strings.
+
+```yaml
+name: Compatibility
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility:
+    uses: iwamot/workflows/.github/workflows/compatibility-node.yml@<sha> # vX.X.X
+    with:
+      node-versions: '["20","22","24"]'
+```
 
 ### `compatibility-python.yml`
 
