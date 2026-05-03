@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   per-node:
+    name: per-node
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
@@ -33,6 +34,7 @@ jobs:
       - run: bash compatibility.sh
 
   compatibility-node:
+    name: compatibility-node
     needs:
       - per-node
     runs-on: ubuntu-latest

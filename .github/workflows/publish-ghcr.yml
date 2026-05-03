@@ -15,20 +15,20 @@ on:
         description: 'Docker Hub token for dhi.io login (optional)'
         required: false
 
-permissions:
-  contents: read
+permissions: {}
 
 env:
   REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
 
 jobs:
   publish-ghcr:
+    name: publish-ghcr
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 10
     environment: ${{ inputs.environment }}
     permissions:
       contents: read
-      packages: write
+      packages: write  # to push images to GHCR
     strategy:
       fail-fast: false
       matrix:
@@ -64,11 +64,12 @@ jobs:
           platform: ${{ matrix.platform }}
 
   merge-and-sign:
+    name: merge-and-sign
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      id-token: write
-      packages: write
+      id-token: write  # to mint OIDC token for image signing
+      packages: write  # to push the merged manifest to GHCR
     needs:
       - publish-ghcr
     steps:

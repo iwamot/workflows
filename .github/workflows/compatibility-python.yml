@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   per-python:
+    name: per-python
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
@@ -33,6 +34,7 @@ jobs:
       - run: bash compatibility.sh
 
   compatibility-python:
+    name: compatibility-python
     needs:
       - per-python
     runs-on: ubuntu-latest

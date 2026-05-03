@@ -16,8 +16,7 @@ on:
         description: 'IAM role ARN to assume via OIDC'
         required: true
 
-permissions:
-  contents: read
+permissions: {}
 
 env:
   REGISTRY_IMAGE: ${{ inputs.registry_image }}
@@ -25,12 +24,13 @@ env:
 
 jobs:
   publish-ecr-public:
+    name: publish-ecr-public
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 10
     environment: ${{ inputs.environment }}
     permissions:
       contents: read
-      id-token: write
+      id-token: write  # to mint OIDC token for AWS role assumption
     strategy:
       fail-fast: false
       matrix:
@@ -60,12 +60,13 @@ jobs:
           platform: ${{ matrix.platform }}
 
   merge-and-sign:
+    name: merge-and-sign
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: ${{ inputs.environment }}
     permissions:
       contents: read
-      id-token: write
+      id-token: write  # to mint OIDC token for AWS role assumption and image signing
     needs:
       - publish-ecr-public
     steps:
