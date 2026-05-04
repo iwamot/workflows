@@ -35,7 +35,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: iwamot/oide@6f98229da40f622661b6635314361570f3ffe796 # v0.0.1
+      - uses: iwamot/oide@a675e15dafb6ace4e76f5aa214327c6660fb3522 # v0.0.2
         with:
           source: ${{ inputs.source || format('iwamot/repo-template@{0}', env.TEMPLATE_VERSION) }}
 
