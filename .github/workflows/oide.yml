@@ -50,7 +50,7 @@ jobs:
           permission-pull-requests: write  # to open the PR
           permission-issues: write         # to create the operations label
 
-      - uses: iwamot/oide@49a137e86b2df3da27a4a23c7d2696595fe9ab49 # v1.0.0
+      - uses: iwamot/oide@e3685dd3d2559392ae5ec1c3af789c6ed82f0511 # v1.0.1
         with:
           source: iwamot/repo-template@${{ env.TEMPLATE_VERSION }}
 
