@@ -1,9 +1,9 @@
-name: oide
+name: Oide
 
 on:
   workflow_call:
     # The two secrets below are reused from the iwamot-renovate App.
-    # Ideally oide would have its own dedicated App for cleaner
+    # Ideally Oide would have its own dedicated App for cleaner
     # separation; deferred to keep the operational footprint small.
     secrets:
       RENOVATE_APP_ID:
