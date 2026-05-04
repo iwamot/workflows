@@ -1,0 +1,70 @@
+name: oide
+
+on:
+  workflow_call:
+    inputs:
+      source:
+        required: true
+        type: string
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/oide.yml
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # renovate: datasource=github-tags depName=iwamot/repo-template
+  TEMPLATE_VERSION: v0.9.0
+
+jobs:
+  pull:
+    name: pull
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write       # to push the branch
+      pull-requests: write  # to open the PR
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: iwamot/oide@6f98229da40f622661b6635314361570f3ffe796 # v0.0.1
+        with:
+          source: ${{ inputs.source || format('iwamot/repo-template@{0}', env.TEMPLATE_VERSION) }}
+
+      - name: Open or update PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: oide/pull
+          TITLE: 'chore: pull files via oide'
+          BODY: 'Automated pull via [oide](https://github.com/iwamot/oide).'
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes; nothing to PR"
+            exit 0
+          fi
+
+          git checkout -B "$BRANCH"
+          git commit -m "$TITLE"
+
+          auth=$(printf '%s' "x-access-token:${GH_TOKEN}" | base64 -w0)
+          git -c "http.extraheader=Authorization: Basic ${auth}" push -f origin "$BRANCH"
+
+          if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty')" ]; then
+            gh pr create --head "$BRANCH" --title "$TITLE" --body "$BODY"
+          else
+            echo "PR already open for $BRANCH; updated by force-push"
+          fi
