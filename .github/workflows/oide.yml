@@ -33,6 +33,7 @@ jobs:
     name: pull
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    environment: production  # so env-scoped RENOVATE_* secrets are accessible on self-run
     permissions:
       contents: read  # write operations go through the App token
     steps:
