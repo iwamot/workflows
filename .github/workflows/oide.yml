@@ -48,6 +48,7 @@ jobs:
           private-key: ${{ secrets.RENOVATE_PRIVATE_KEY }}
           permission-contents: write       # to push the branch
           permission-pull-requests: write  # to open the PR
+          permission-issues: write         # to create the operations label
 
       - uses: iwamot/oide@a675e15dafb6ace4e76f5aa214327c6660fb3522 # v0.0.2
         with:
@@ -60,6 +61,7 @@ jobs:
           BRANCH: oide/pull
           TITLE: 'chore: pull files via oide'
           BODY: 'Pulled from [iwamot/repo-template@${{ env.TEMPLATE_VERSION }}](https://github.com/iwamot/repo-template/tree/${{ env.TEMPLATE_VERSION }}) via [oide](https://github.com/iwamot/oide).'
+          LABEL: operations
         run: |
           set -euo pipefail
 
@@ -70,6 +72,13 @@ jobs:
           bot_id=$(gh api "/users/${bot}" --jq '.id')
           git config user.name "$bot"
           git config user.email "${bot_id}+${bot}@users.noreply.github.com"
+
+          # Ensure the label exists (idempotent — same convention Renovate uses
+          # for its `dependencies` label).
+          gh label create "$LABEL" \
+            --color 1d76db \
+            --description "Routine operational changes from automation" \
+            2>/dev/null || true
 
           git add -A
           if git diff --cached --quiet; then
@@ -84,9 +93,10 @@ jobs:
           git -c "http.extraheader=Authorization: Basic ${auth}" push -f origin "$BRANCH"
 
           if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty')" ]; then
-            gh pr create --head "$BRANCH" --title "$TITLE" --body "$BODY"
+            gh pr create --head "$BRANCH" --title "$TITLE" --body "$BODY" --label "$LABEL"
           else
             echo "PR already open for $BRANCH; updated by force-push"
+            gh pr edit "$BRANCH" --add-label "$LABEL" 2>/dev/null || true
           fi
 
           # Enable auto-merge so the PR merges as soon as required checks
