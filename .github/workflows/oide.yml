@@ -56,17 +56,20 @@ jobs:
       - name: Open or update PR
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
           BRANCH: oide/pull
           TITLE: 'chore: pull files via oide'
           BODY: 'Automated pull via [oide](https://github.com/iwamot/oide).'
         run: |
           set -euo pipefail
 
-          info=$(gh api /user --jq '"\(.login) \(.id)"')
-          login="${info%% *}"
-          id="${info##* }"
-          git config user.name "$login"
-          git config user.email "${id}+${login}@users.noreply.github.com"
+          # Use the App's bot identity as the commit author. /user is not
+          # accessible with installation tokens, but /users/<login> is a
+          # public endpoint and works.
+          bot="${APP_SLUG}[bot]"
+          bot_id=$(gh api "/users/${bot}" --jq '.id')
+          git config user.name "$bot"
+          git config user.email "${bot_id}+${bot}@users.noreply.github.com"
 
           git add -A
           if git diff --cached --quiet; then
