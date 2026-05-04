@@ -2,10 +2,6 @@ name: oide
 
 on:
   workflow_call:
-    inputs:
-      source:
-        required: true
-        type: string
   workflow_dispatch:
   push:
     branches: [main]
@@ -37,7 +33,7 @@ jobs:
 
       - uses: iwamot/oide@a675e15dafb6ace4e76f5aa214327c6660fb3522 # v0.0.2
         with:
-          source: ${{ inputs.source || format('iwamot/repo-template@{0}', env.TEMPLATE_VERSION) }}
+          source: iwamot/repo-template@${{ env.TEMPLATE_VERSION }}
 
       - name: Open or update PR
         env:
