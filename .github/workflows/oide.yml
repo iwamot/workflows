@@ -59,7 +59,7 @@ jobs:
           APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
           BRANCH: oide/pull
           TITLE: 'chore: pull files via oide'
-          BODY: 'Automated pull via [oide](https://github.com/iwamot/oide).'
+          BODY: 'Pulled from [iwamot/repo-template@${{ env.TEMPLATE_VERSION }}](https://github.com/iwamot/repo-template/tree/${{ env.TEMPLATE_VERSION }}) via [oide](https://github.com/iwamot/oide).'
         run: |
           set -euo pipefail
 
@@ -88,3 +88,8 @@ jobs:
           else
             echo "PR already open for $BRANCH; updated by force-push"
           fi
+
+          # Enable auto-merge so the PR merges as soon as required checks
+          # pass. Idempotent: re-enabling on an already-auto-merge-enabled
+          # PR is a no-op.
+          gh pr merge "$BRANCH" --auto --squash
