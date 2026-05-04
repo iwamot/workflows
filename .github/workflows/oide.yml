@@ -2,6 +2,16 @@ name: oide
 
 on:
   workflow_call:
+    # The two secrets below are reused from the iwamot-renovate App.
+    # Ideally oide would have its own dedicated App for cleaner
+    # separation; deferred to keep the operational footprint small.
+    secrets:
+      RENOVATE_APP_ID:
+        required: true
+        description: 'GitHub App ID with contents:write and pull-requests:write'
+      RENOVATE_PRIVATE_KEY:
+        required: true
+        description: 'GitHub App private key (PEM)'
   workflow_dispatch:
   push:
     branches: [main]
@@ -24,12 +34,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
-      contents: write       # to push the branch
-      pull-requests: write  # to open the PR
+      contents: read  # write operations go through the App token
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
+
+      - uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        id: app-token
+        with:
+          app-id: ${{ secrets.RENOVATE_APP_ID }}
+          private-key: ${{ secrets.RENOVATE_PRIVATE_KEY }}
+          permission-contents: write       # to push the branch
+          permission-pull-requests: write  # to open the PR
 
       - uses: iwamot/oide@a675e15dafb6ace4e76f5aa214327c6660fb3522 # v0.0.2
         with:
@@ -37,15 +54,18 @@ jobs:
 
       - name: Open or update PR
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           BRANCH: oide/pull
           TITLE: 'chore: pull files via oide'
           BODY: 'Automated pull via [oide](https://github.com/iwamot/oide).'
         run: |
           set -euo pipefail
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          info=$(gh api /user --jq '"\(.login) \(.id)"')
+          login="${info%% *}"
+          id="${info##* }"
+          git config user.name "$login"
+          git config user.email "${id}+${login}@users.noreply.github.com"
 
           git add -A
           if git diff --cached --quiet; then
