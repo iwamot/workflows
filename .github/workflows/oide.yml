@@ -48,7 +48,7 @@ jobs:
           private-key: ${{ secrets.RENOVATE_PRIVATE_KEY }}
           permission-contents: write       # to push the branch
           permission-pull-requests: write  # to open the PR
-          permission-issues: write         # to create the operations label
+          permission-issues: write         # to create the maintenance label
 
       - uses: iwamot/oide@4118fe40cd6f204d637c260eed3e2eb23addb5a6 # v1.1.0
         with:
@@ -61,7 +61,7 @@ jobs:
           BRANCH: oide/pull
           TITLE: 'chore: pull files via oide'
           BODY: 'Pulled from [iwamot/repo-template@${{ env.TEMPLATE_VERSION }}](https://github.com/iwamot/repo-template/tree/${{ env.TEMPLATE_VERSION }}) via [oide](https://github.com/iwamot/oide).'
-          LABEL: operations
+          LABEL: maintenance
         run: |
           set -euo pipefail
 
@@ -76,8 +76,8 @@ jobs:
           # Ensure the label exists (idempotent — same convention Renovate uses
           # for its `dependencies` label).
           gh label create "$LABEL" \
-            --color 1d76db \
-            --description "Routine operational changes from automation" \
+            --color 6a737d \
+            --description "Maintenance updates" \
             2>/dev/null || true
 
           git add -A
