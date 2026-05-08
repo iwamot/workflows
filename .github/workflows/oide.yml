@@ -3,10 +3,10 @@ name: Oide
 on:
   workflow_call:
     inputs:
-      template_version:
+      TEMPLATE_VERSION:
         type: string
         required: true
-        description: 'Source ref of iwamot/repo-template. Required for callers; the workflows self-run via the push trigger uses the workflows-internal env pin instead.'
+        description: 'Source ref of iwamot/repo-template. Required for callers; the workflows self-run via the push trigger uses the workflows-internal env pin instead. Named UPPER_CASE so callers can carry the standard `# renovate: datasource=...` annotation that the customManagers:githubActionsVersions preset matches against `_VERSION` keys.'
     # The two secrets below are reused from the iwamot-renovate App.
     # Ideally Oide would have its own dedicated App for cleaner
     # separation; deferred to keep the operational footprint small.
@@ -47,7 +47,7 @@ jobs:
         # self-run) doesn't go through workflow_call, so 'inputs' is empty and we fall
         # back to the workflows-internal env pin.
         env:
-          INPUT_VERSION: ${{ inputs.template_version }}
+          INPUT_VERSION: ${{ inputs.TEMPLATE_VERSION }}
         run: echo "VERSION=${INPUT_VERSION:-${TEMPLATE_VERSION}}" >> "$GITHUB_ENV"
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
