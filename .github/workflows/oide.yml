@@ -2,6 +2,11 @@ name: Oide
 
 on:
   workflow_call:
+    inputs:
+      template_version:
+        type: string
+        required: true
+        description: 'Source ref of iwamot/repo-template. Required for callers; the workflows self-run via the push trigger uses the workflows-internal env pin instead.'
     # The two secrets below are reused from the iwamot-renovate App.
     # Ideally Oide would have its own dedicated App for cleaner
     # separation; deferred to keep the operational footprint small.
@@ -37,6 +42,14 @@ jobs:
     permissions:
       contents: read  # write operations go through the App token
     steps:
+      - name: Resolve template version
+        # workflow_call passes the caller-supplied input. The push trigger (workflows
+        # self-run) doesn't go through workflow_call, so 'inputs' is empty and we fall
+        # back to the workflows-internal env pin.
+        env:
+          INPUT_VERSION: ${{ inputs.template_version }}
+        run: echo "VERSION=${INPUT_VERSION:-${TEMPLATE_VERSION}}" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
@@ -52,7 +65,7 @@ jobs:
 
       - uses: iwamot/oide@4118fe40cd6f204d637c260eed3e2eb23addb5a6 # v1.1.0
         with:
-          source: iwamot/repo-template@${{ env.TEMPLATE_VERSION }}
+          source: iwamot/repo-template@${{ env.VERSION }}
 
       - name: Open or update PR
         env:
@@ -60,7 +73,7 @@ jobs:
           APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
           BRANCH: oide/pull
           TITLE: 'chore: pull files via oide'
-          BODY: 'Pulled from [iwamot/repo-template@${{ env.TEMPLATE_VERSION }}](https://github.com/iwamot/repo-template/tree/${{ env.TEMPLATE_VERSION }}) via [oide](https://github.com/iwamot/oide).'
+          BODY: 'Pulled from [iwamot/repo-template@${{ env.VERSION }}](https://github.com/iwamot/repo-template/tree/${{ env.VERSION }}) via [oide](https://github.com/iwamot/oide).'
           LABEL: maintenance
         run: |
           set -euo pipefail
