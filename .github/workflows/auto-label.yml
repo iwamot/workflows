@@ -1,0 +1,50 @@
+name: 'Auto label by title'
+
+on:
+  workflow_call:
+  pull_request:
+    types: [opened]
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  label:
+    name: label
+    if: ${{ !github.event.pull_request.head.repo.fork }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      pull-requests: write  # to add a label to the PR
+    steps:
+      - name: Apply release-note label from Conventional Commits prefix
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -euo pipefail
+
+          # Skip if PR already has a release label (covers bot PRs that self-label)
+          for l in $(gh pr view "$PR" --repo "$REPO" --json labels -q '.labels[].name'); do
+            case "$l" in
+              feature|bugfix|dependencies|maintenance)
+                echo "Already labeled: $l"; exit 0 ;;
+            esac
+          done
+
+          # Parse Conventional Commits prefix from PR title
+          prefix=$(echo "$TITLE" | sed -nE 's/^([a-zA-Z]+)(\([^)]+\))?!?:.*/\1/p' | tr '[:upper:]' '[:lower:]')
+          case "$prefix" in
+            feat)       label=feature ;;
+            fix)        label=bugfix ;;
+            chore|docs) label=maintenance ;;
+            *)          echo "No matching prefix in title: $TITLE"; exit 0 ;;
+          esac
+
+          gh pr edit "$PR" --repo "$REPO" --add-label "$label"
+          echo "Labeled: $label"
