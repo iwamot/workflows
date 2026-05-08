@@ -29,22 +29,29 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Skip if PR already has a release label (covers bot PRs that self-label)
-          for l in $(gh pr view "$PR" --repo "$REPO" --json labels -q '.labels[].name'); do
-            case "$l" in
-              feature|bugfix|dependencies|maintenance)
-                echo "Already labeled: $l"; exit 0 ;;
-            esac
-          done
+          # Always: breaking-change marker ('!' before ':') -> add 'breaking' label.
+          # Idempotent: gh pr edit --add-label is a no-op if already present.
+          if echo "$TITLE" | grep -qE '^[a-zA-Z]+(\([^)]+\))?!:'; then
+            gh pr edit "$PR" --repo "$REPO" --add-label breaking
+            echo "Marked breaking"
+          fi
 
-          # Parse Conventional Commits prefix from PR title
+          # Parse Conventional Commits prefix and scope
           prefix=$(echo "$TITLE" | sed -nE 's/^([a-zA-Z]+)(\([^)]+\))?!?:.*/\1/p' | tr '[:upper:]' '[:lower:]')
-          case "$prefix" in
-            feat)       label=feature ;;
-            fix)        label=bugfix ;;
-            chore|docs) label=maintenance ;;
-            *)          echo "No matching prefix in title: $TITLE"; exit 0 ;;
-          esac
+          scope=$(echo "$TITLE" | sed -nE 's/^[a-zA-Z]+\(([^)]+)\)!?:.*/\1/p' | tr '[:upper:]' '[:lower:]')
+
+          # scope=deps takes precedence over the type mapping (handles Renovate's
+          # `chore(deps):` and `fix(deps):` uniformly).
+          if [ "$scope" = "deps" ]; then
+            label=dependencies
+          else
+            case "$prefix" in
+              feat)       label=feature ;;
+              fix)        label=bugfix ;;
+              chore|docs) label=maintenance ;;
+              *)          echo "No matching prefix in title: $TITLE"; exit 0 ;;
+            esac
+          fi
 
           gh pr edit "$PR" --repo "$REPO" --add-label "$label"
           echo "Labeled: $label"
