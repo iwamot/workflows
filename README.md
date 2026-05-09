@@ -6,6 +6,7 @@ iwamot's shared reusable GitHub Actions workflows.
 
 | Workflow | Purpose |
 |----------|---------|
+| `compatibility-go.yml` | Run the caller's `compatibility.sh` across a matrix of Go versions. |
 | `compatibility-node.yml` | Run the caller's `compatibility.sh` across a matrix of Node.js versions. |
 | `compatibility-python.yml` | Run the caller's `compatibility.sh` across a matrix of Python versions. |
 | `dependabot-auto-merge.yml` | Enable auto-merge for non-major Dependabot PRs. |
@@ -19,6 +20,47 @@ iwamot's shared reusable GitHub Actions workflows.
 ## Usage
 
 Each workflow is invoked from a caller workflow via `uses:` at the job level. The caller defines its own triggers and workflow-level `permissions`.
+
+### `compatibility-go.yml`
+
+Run a caller-provided `compatibility.sh` script under each Go version in the matrix. The matrix Go version is plumbed to mise via the `MISE_GO_VERSION` environment variable (set at the job level), so the script itself does not need to thread the version through any command. What "compatibility" means (unit tests, packaging smoke test, end-to-end against fixtures, or any combination) is decided by the caller.
+
+The `mise` binary is preinstalled on the runner (no tools installed), so the caller's `compatibility.sh` is responsible for activating mise and installing whatever it needs from `mise.toml`. A typical script exercises the `go install` path in an isolated `GOBIN` and runs the resulting binary against fixtures:
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+eval "$(mise activate bash)"
+mise install
+
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
+
+GOBIN="$TMP" go install ./...
+"$TMP/<cli>" --version
+```
+
+The `go-versions` input is a JSON-encoded array of version strings.
+
+```yaml
+name: Compatibility
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility:
+    uses: iwamot/workflows/.github/workflows/compatibility-go.yml@<sha> # vX.X.X
+    with:
+      go-versions: '["1.25","1.26"]'
+```
 
 ### `compatibility-node.yml`
 
