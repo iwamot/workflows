@@ -31,7 +31,7 @@ concurrency:
 
 env:
   # renovate: datasource=github-tags depName=iwamot/repo-template
-  TEMPLATE_VERSION: v1.4.0
+  TEMPLATE_VERSION: v1.5.0
 
 jobs:
   pull:
