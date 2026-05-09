@@ -14,7 +14,7 @@ concurrency:
 jobs:
   label:
     name: label
-    if: ${{ !github.event.pull_request.head.repo.fork }}
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     timeout-minutes: 2
     permissions:
