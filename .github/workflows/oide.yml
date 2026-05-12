@@ -42,6 +42,11 @@ jobs:
     permissions:
       contents: read  # write operations go through the App token
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@f808768d1510423e83855289c910610ca9b43176 # v2.17.0
+        with:
+          egress-policy: audit
+
       - name: Resolve template version
         # workflow_call passes the caller-supplied input. The push trigger (workflows
         # self-run) doesn't go through workflow_call, so 'inputs' is empty and we fall
