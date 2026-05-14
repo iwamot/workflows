@@ -12,9 +12,9 @@ on:
         type: string
         default: production
     secrets:
-      RENOVATE_APP_ID:
+      RENOVATE_APP_CLIENT_ID:
         required: true
-      RENOVATE_PRIVATE_KEY:
+      RENOVATE_APP_PRIVATE_KEY:
         required: true
       DOCKERHUB_USERNAME:
         required: false
@@ -78,8 +78,8 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
-          client-id: ${{ secrets.RENOVATE_APP_ID }}
-          private-key: ${{ secrets.RENOVATE_PRIVATE_KEY }}
+          client-id: ${{ secrets.RENOVATE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
           permission-contents: write
           permission-issues: write
           permission-pull-requests: write

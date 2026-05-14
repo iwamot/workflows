@@ -246,7 +246,7 @@ jobs:
 
 ### `renovate.yml`
 
-Requires a `production` environment on the caller with `RENOVATE_APP_ID` and `RENOVATE_PRIVATE_KEY` secrets (GitHub App credentials used to mint a Renovate access token).
+Requires a `production` environment on the caller with `RENOVATE_APP_CLIENT_ID` and `RENOVATE_APP_PRIVATE_KEY` secrets (GitHub App credentials used to mint a Renovate access token).
 
 Optional behavior:
 
@@ -280,8 +280,8 @@ jobs:
     with:
       log-level: ${{ inputs.log-level || 'info' }}
     secrets:
-      RENOVATE_APP_ID: ${{ secrets.RENOVATE_APP_ID }}
-      RENOVATE_PRIVATE_KEY: ${{ secrets.RENOVATE_PRIVATE_KEY }}
+      RENOVATE_APP_CLIENT_ID: ${{ secrets.RENOVATE_APP_CLIENT_ID }}
+      RENOVATE_APP_PRIVATE_KEY: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
       # Optional: enable dhi.io authentication
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
