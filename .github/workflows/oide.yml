@@ -7,16 +7,13 @@ on:
         type: string
         required: true
         description: 'Source ref of iwamot/repo-template. Required for callers; the workflows self-run via the push trigger uses the workflows-internal env pin instead. Named UPPER_CASE so callers can carry the standard `# renovate: datasource=...` annotation that the customManagers:githubActionsVersions preset matches against `_VERSION` keys.'
-    # The two secrets below are reused from the iwamot-renovate App.
-    # Ideally Oide would have its own dedicated App for cleaner
-    # separation; deferred to keep the operational footprint small.
     secrets:
-      RENOVATE_APP_ID:
+      OIDE_APP_CLIENT_ID:
         required: true
-        description: 'GitHub App ID with contents:write and pull-requests:write'
-      RENOVATE_PRIVATE_KEY:
+        description: 'iwamot-oide GitHub App Client ID'
+      OIDE_APP_PRIVATE_KEY:
         required: true
-        description: 'GitHub App private key (PEM)'
+        description: 'iwamot-oide GitHub App private key (PEM)'
   workflow_dispatch:
   push:
     branches: [main]
@@ -38,7 +35,7 @@ jobs:
     name: pull
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    environment: production  # so env-scoped RENOVATE_* secrets are accessible on self-run
+    environment: production  # so env-scoped OIDE_APP_* secrets are accessible on self-run
     permissions:
       contents: read  # write operations go through the App token
     steps:
@@ -62,8 +59,8 @@ jobs:
       - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: app-token
         with:
-          client-id: ${{ secrets.RENOVATE_APP_ID }}
-          private-key: ${{ secrets.RENOVATE_PRIVATE_KEY }}
+          client-id: ${{ secrets.OIDE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.OIDE_APP_PRIVATE_KEY }}
           permission-contents: write       # to push the branch
           permission-pull-requests: write  # to open the PR
           permission-issues: write         # to create the maintenance label
