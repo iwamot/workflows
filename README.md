@@ -13,6 +13,7 @@ iwamot's shared reusable GitHub Actions workflows.
 | `dependency-review.yml` | Run `actions/dependency-review-action` on pull requests. |
 | `publish-ecr-public.yml` | Build a multi-arch Docker image, push to Amazon ECR Public, sign with cosign, and attach an SBOM attestation. |
 | `publish-ghcr.yml` | Build a multi-arch Docker image, push to `ghcr.io/<owner>/<repo>`, sign with cosign, and attach an SBOM attestation. |
+| `release-only.yml` | Create a GitHub Release from a pushed tag with auto-generated notes. |
 | `renovate.yml` | Run Renovate with GitHub App authentication. |
 | `validate.yml` | Run `validate.sh` under mise. |
 | `validate-with-coverage.yml` | Run `validate.sh` under mise and upload coverage to Codecov. |
@@ -242,6 +243,28 @@ jobs:
       # Optional: enable dhi.io authentication during builds
       dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
       dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
+```
+
+### `release-only.yml`
+
+Create a GitHub Release for the pushed tag with auto-generated notes. For repos that publish only a GitHub Release with no artifact distribution step (no Docker image, no package registry, no binary upload).
+
+Requires `contents: write` granted at the calling job level.
+
+```yaml
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions: {}
+
+jobs:
+  release:
+    uses: iwamot/workflows/.github/workflows/release-only.yml@<sha> # vX.X.X
+    permissions:
+      contents: write
 ```
 
 ### `renovate.yml`
