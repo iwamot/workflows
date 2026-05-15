@@ -1,6 +1,7 @@
 name: Release
 
 on:
+  workflow_call:
   push:
     tags:
       - 'v*'
@@ -17,12 +18,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 1
     permissions:
-      contents: write  # to create and publish the GitHub Release
+      contents: write  # to create the GitHub Release
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@9ca718d3bf646d6534007c269a635b3e54cadf99 # v2.19.2
         with:
           egress-policy: audit
 
-      - uses: iwamot/actions/release-draft@09a90ef28919b6331a2930f6e61eeca11bc634de # v0.9.0
-      - uses: iwamot/actions/release-publish@09a90ef28919b6331a2930f6e61eeca11bc634de # v0.9.0
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        shell: bash
+        run: gh release create "${TAG}" --generate-notes
