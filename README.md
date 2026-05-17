@@ -11,10 +11,8 @@ iwamot's shared reusable GitHub Actions workflows.
 | `compatibility-python.yml` | Run the caller's `compatibility.sh` across a matrix of Python versions. |
 | `dependabot-auto-merge.yml` | Enable auto-merge for non-major Dependabot PRs. |
 | `dependency-review.yml` | Run `actions/dependency-review-action` on pull requests. |
-| `publish-ecr-public.yml` | **Deprecated** — use `release-ecr-public.yml`. Build a multi-arch Docker image, push to Amazon ECR Public, sign with cosign, and attach an SBOM attestation. |
-| `publish-ghcr.yml` | **Deprecated** — use `release-ghcr.yml`. Build a multi-arch Docker image, push to `ghcr.io/<owner>/<repo>`, sign with cosign, and attach an SBOM attestation. |
-| `release-ecr-public.yml` | Draft a GitHub Release, run the `publish-ecr-public.yml` pipeline, then flip the draft to published. |
-| `release-ghcr.yml` | Draft a GitHub Release, run the `publish-ghcr.yml` pipeline, then flip the draft to published. |
+| `release-ecr-public.yml` | Draft a GitHub Release, build and push a multi-arch Docker image to Amazon ECR Public, sign with cosign, attach an SBOM attestation, then flip the draft to published. |
+| `release-ghcr.yml` | Draft a GitHub Release, build and push a multi-arch Docker image to `ghcr.io/<owner>/<repo>`, sign with cosign, attach an SBOM attestation, then flip the draft to published. |
 | `release-homebrew-tap.yml` | Draft a GitHub Release, run `goreleaser`, open a cask-update PR against `iwamot/homebrew-tap`, then flip the draft to published. |
 | `release-only.yml` | Create a GitHub Release from a pushed tag with auto-generated notes. |
 | `renovate.yml` | Run Renovate with GitHub App authentication. |
@@ -186,75 +184,9 @@ jobs:
     uses: iwamot/workflows/.github/workflows/dependency-review.yml@<sha> # vX.X.X
 ```
 
-### `publish-ecr-public.yml`
-
-> **Deprecated in v6.2.0.** Use [`release-ecr-public.yml`](#release-ecr-publicyml) instead, which wraps this pipeline with the draft/publish GitHub Release bookends. Scheduled for removal in v7.0.0.
-
-Same build/sign/SBOM pipeline as `publish-ghcr.yml`, but pushes to Amazon ECR Public (`us-east-1`) using OIDC to assume the IAM role passed via `aws_role_arn`.
-
-Requires `id-token: write` at the caller's workflow level. A `production` environment is used by default (override via the `environment` input).
-
-Required:
-
-- `registry_image` input: Full ECR Public image URI (e.g. `public.ecr.aws/xxxxxxxx/namespace/repo`).
-- `aws_role_arn` secret: IAM role ARN to assume via OIDC.
-
-```yaml
-name: Publish
-
-on:
-  push:
-    tags: ['v*.*.*']
-
-permissions:
-  contents: read
-  id-token: write
-
-jobs:
-  publish:
-    uses: iwamot/workflows/.github/workflows/publish-ecr-public.yml@<sha> # vX.X.X
-    with:
-      registry_image: public.ecr.aws/xxxxxxxx/namespace/repo
-    secrets:
-      aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
-```
-
-### `publish-ghcr.yml`
-
-> **Deprecated in v6.2.0.** Use [`release-ghcr.yml`](#release-ghcryml) instead, which wraps this pipeline with the draft/publish GitHub Release bookends. Scheduled for removal in v7.0.0.
-
-Build a multi-arch Docker image (linux/amd64, linux/arm64), push it to `ghcr.io/<owner>/<repo>`, then sign with cosign (keyless via OIDC) and attach a SPDX-JSON SBOM attestation. Uses the caller's `GITHUB_TOKEN` for GHCR login — no registry credentials required.
-
-Requires `packages: write` and `id-token: write` at the caller's workflow level. A `production` environment is used by default (override via the `environment` input).
-
-Optional behavior:
-
-- If `dockerhub_username` / `dockerhub_token` secrets are passed, `dhi.io` (Docker Hardened Images) login is performed before the build.
-
-```yaml
-name: Publish
-
-on:
-  push:
-    tags: ['v*.*.*']
-
-permissions:
-  contents: read
-  packages: write
-  id-token: write
-
-jobs:
-  publish:
-    uses: iwamot/workflows/.github/workflows/publish-ghcr.yml@<sha> # vX.X.X
-    secrets:
-      # Optional: enable dhi.io authentication during builds
-      dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
-      dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
-```
-
 ### `release-ecr-public.yml`
 
-End-to-end release pipeline that drafts a GitHub Release, runs the `publish-ecr-public.yml` build/push/sign matrix, then flips the draft to published. Inputs and the `aws_role_arn` secret match `publish-ecr-public.yml`.
+End-to-end release pipeline that drafts a GitHub Release, builds and pushes a multi-arch (linux/amd64, linux/arm64) Docker image to Amazon ECR Public (`us-east-1`) using OIDC to assume the IAM role passed via `aws_role_arn`, signs the merged manifest with cosign and attaches a SPDX-JSON SBOM attestation, then flips the draft to published.
 
 Requires `contents: write` (draft and publish the Release) and `id-token: write` (OIDC for AWS role assumption) at the called job. A `production` environment is used by default (override via the `environment` input).
 
@@ -286,7 +218,7 @@ jobs:
 
 ### `release-ghcr.yml`
 
-End-to-end release pipeline that drafts a GitHub Release, runs the `publish-ghcr.yml` build/push/sign matrix, then flips the draft to published. Optional `dockerhub_username` / `dockerhub_token` secrets enable `dhi.io` login during builds.
+End-to-end release pipeline that drafts a GitHub Release, builds and pushes a multi-arch (linux/amd64, linux/arm64) Docker image to `ghcr.io/<owner>/<repo>` using the caller's `GITHUB_TOKEN`, signs the merged manifest with cosign (keyless via OIDC) and attaches a SPDX-JSON SBOM attestation, then flips the draft to published. Optional `dockerhub_username` / `dockerhub_token` secrets enable `dhi.io` (Docker Hardened Images) login during builds.
 
 Requires `contents: write` (draft and publish the Release), `packages: write` (push to GHCR), and `id-token: write` (cosign keyless signing) at the called job. A `production` environment is used by default (override via the `environment` input).
 
