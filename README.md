@@ -11,9 +11,9 @@ iwamot's shared reusable GitHub Actions workflows.
 | `compatibility-python.yml` | Run the caller's `compatibility.sh` across a matrix of Python versions. |
 | `dependabot-auto-merge.yml` | Enable auto-merge for non-major Dependabot PRs. |
 | `dependency-review.yml` | Run `actions/dependency-review-action` on pull requests. |
-| `release-ecr-public.yml` | Draft a GitHub Release, build and push a multi-arch Docker image to Amazon ECR Public, sign with cosign, attach an SBOM attestation, then flip the draft to published. |
-| `release-ghcr.yml` | Draft a GitHub Release, build and push a multi-arch Docker image to `ghcr.io/<owner>/<repo>`, sign with cosign, attach an SBOM attestation, then flip the draft to published. |
-| `release-homebrew-tap.yml` | Draft a GitHub Release, run `goreleaser`, open a cask-update PR against `iwamot/homebrew-tap`, then flip the draft to published. |
+| `release-ecr-public.yml` | Release a multi-arch Docker image to Amazon ECR Public (cosign-signed, SBOM-attested). |
+| `release-ghcr.yml` | Release a multi-arch Docker image to `ghcr.io/<owner>/<repo>` (cosign-signed, SBOM-attested). |
+| `release-homebrew-tap.yml` | Release a Go CLI as a Homebrew cask via `iwamot/homebrew-tap`. |
 | `release-only.yml` | Create a GitHub Release from a pushed tag with auto-generated notes. |
 | `renovate.yml` | Run Renovate with GitHub App authentication. |
 | `validate.yml` | Run `validate.sh` under mise. |
@@ -25,9 +25,9 @@ Each workflow is invoked from a caller workflow via `uses:` at the job level. Th
 
 ### `compatibility-go.yml`
 
-Run a caller-provided `compatibility.sh` script under each Go version in the matrix. The matrix Go version is plumbed to mise via the `MISE_GO_VERSION` environment variable (set at the job level), so the script itself does not need to thread the version through any command. What "compatibility" means (unit tests, packaging smoke test, end-to-end against fixtures, or any combination) is decided by the caller.
+Run a caller-provided `compatibility.sh` under each Go version in the matrix. The caller's `mise.toml` must declare `go` under `[tools]`; the matrix version is exported as `MISE_GO_VERSION`, overriding that entry. The script defines what "compatibility" means; `mise` is preinstalled on the runner but no tools are installed, so the script must call `mise install` itself.
 
-The `mise` binary is preinstalled on the runner (no tools installed), so the caller's `compatibility.sh` is responsible for activating mise and installing whatever it needs from `mise.toml`. A typical script exercises the `go install` path in an isolated `GOBIN` and runs the resulting binary against fixtures:
+A typical script exercises the `go install` path in an isolated `GOBIN`:
 
 ```bash
 #!/bin/bash
@@ -42,8 +42,6 @@ trap 'rm -rf "$TMP"' EXIT
 GOBIN="$TMP" go install ./...
 "$TMP/<cli>" --version
 ```
-
-The `go-versions` input is a JSON-encoded array of version strings.
 
 ```yaml
 name: Compatibility
@@ -66,9 +64,9 @@ jobs:
 
 ### `compatibility-node.yml`
 
-Run a caller-provided `compatibility.sh` script under each Node.js version in the matrix. The matrix Node.js version is plumbed to mise via the `MISE_NODE_VERSION` environment variable (set at the job level), so the script itself does not need to thread the version through any command. What "compatibility" means (unit tests, packaging smoke test, end-to-end against fixtures, or any combination) is decided by the caller.
+Run a caller-provided `compatibility.sh` under each Node.js version in the matrix. The caller's `mise.toml` must declare `node` under `[tools]`; the matrix version is exported as `MISE_NODE_VERSION`, overriding that entry. The script defines what "compatibility" means; `mise` is preinstalled on the runner but no tools are installed, so the script must call `mise install` itself.
 
-The `mise` binary is preinstalled on the runner (no tools installed), so the caller's `compatibility.sh` is responsible for activating mise and installing whatever it needs from `mise.toml`. A typical script builds the package once and exercises the packed tarball in an isolated directory:
+A typical script builds the package once and exercises the packed tarball in an isolated directory:
 
 ```bash
 #!/bin/bash
@@ -91,8 +89,6 @@ npm install --silent --no-audit --no-fund "$TARBALL"
 ./node_modules/.bin/<cli> --version
 ```
 
-The `node-versions` input is a JSON-encoded array of version strings.
-
 ```yaml
 name: Compatibility
 
@@ -114,9 +110,11 @@ jobs:
 
 ### `compatibility-python.yml`
 
-Run a caller-provided `compatibility.sh` script under each Python version in the matrix. The matrix Python version is plumbed to `uv` via the `UV_PYTHON` environment variable (set at the job level), so the script itself does not need to thread the version through any command. What "compatibility" means (unit tests, packaging smoke test, end-to-end against fixtures, or any combination) is decided by the caller.
+Run a caller-provided `compatibility.sh` under each Python version in the matrix. The caller's `mise.toml` must declare `aqua:astral-sh/uv` under `[tools]`; the matrix version is exported as `UV_PYTHON` for `uv` to pick up. The script defines what "compatibility" means; `mise` is preinstalled on the runner but no tools are installed, so the script must call `mise install` itself.
 
-The `mise` binary is preinstalled on the runner (no tools installed), so the caller's `compatibility.sh` is responsible for activating mise and installing whatever it needs from `mise.toml`. Use the canonical tool name that matches your `mise.toml` key (e.g. `aqua:astral-sh/uv`) — a short alias like `mise install uv` may install the binary but leave the shim inactive in a clean environment. A typical script builds the wheel once and exercises it under the matrix Python in an isolated environment:
+Use this canonical name when invoking `mise install <tool>` explicitly — a short alias like `mise install uv` may install the binary but leave the shim inactive in a clean environment.
+
+A typical script builds the wheel once and exercises it under the matrix Python in an isolated environment:
 
 ```bash
 #!/bin/bash
@@ -128,8 +126,6 @@ mise install aqua:astral-sh/uv
 uv build --wheel --out-dir dist
 uv run --isolated --no-project --with ./dist/*.whl <cli> <fixture>
 ```
-
-The `python-versions` input is a JSON-encoded array of version strings.
 
 ```yaml
 name: Compatibility
@@ -152,6 +148,8 @@ jobs:
 
 ### `dependabot-auto-merge.yml`
 
+Enable auto-merge on Dependabot PRs that are not major version bumps. Requires Dependabot to be enabled for the caller's repo (via `.github/dependabot.yml` or repo settings).
+
 ```yaml
 name: Dependabot auto-merge
 
@@ -167,6 +165,8 @@ jobs:
 ```
 
 ### `dependency-review.yml`
+
+Wraps `actions/dependency-review-action` to flag dependency changes that introduce known vulnerabilities on pull requests.
 
 ```yaml
 name: 'Dependency review'
@@ -186,14 +186,9 @@ jobs:
 
 ### `release-ecr-public.yml`
 
-End-to-end release pipeline that drafts a GitHub Release, builds and pushes a multi-arch (linux/amd64, linux/arm64) Docker image to Amazon ECR Public (`us-east-1`) using OIDC to assume the IAM role passed via `aws_role_arn`, signs the merged manifest with cosign and attaches a SPDX-JSON SBOM attestation, then flips the draft to published.
+End-to-end release pipeline that drafts a GitHub Release, builds and pushes a multi-arch (linux/amd64, linux/arm64) Docker image to Amazon ECR Public (`us-east-1`), signs the merged manifest with cosign, attaches an SPDX-JSON SBOM attestation, and publishes the Release. The `aws_role_arn` is assumed via OIDC. Runs in the `production` environment by default (override via the `environment` input).
 
-Requires `contents: write` (draft and publish the Release) and `id-token: write` (OIDC for AWS role assumption) at the called job. A `production` environment is used by default (override via the `environment` input).
-
-Required:
-
-- `registry_image` input: Full ECR Public image URI (e.g. `public.ecr.aws/xxxxxxxx/namespace/repo`).
-- `aws_role_arn` secret: IAM role ARN to assume via OIDC.
+The caller must provide a `Dockerfile` at its repo root, and register the `AWS_ROLE_ARN` secret in the `production` environment.
 
 ```yaml
 name: Release
@@ -218,9 +213,9 @@ jobs:
 
 ### `release-ghcr.yml`
 
-End-to-end release pipeline that drafts a GitHub Release, builds and pushes a multi-arch (linux/amd64, linux/arm64) Docker image to `ghcr.io/<owner>/<repo>` using the caller's `GITHUB_TOKEN`, signs the merged manifest with cosign (keyless via OIDC) and attaches a SPDX-JSON SBOM attestation, then flips the draft to published. Optional `dockerhub_username` / `dockerhub_token` secrets enable `dhi.io` (Docker Hardened Images) login during builds.
+End-to-end release pipeline that drafts a GitHub Release, builds and pushes a multi-arch (linux/amd64, linux/arm64) Docker image to `ghcr.io/<owner>/<repo>` using the caller's `GITHUB_TOKEN`, signs the merged manifest with cosign (keyless via OIDC), attaches an SPDX-JSON SBOM attestation, and publishes the Release. Runs in the `production` environment by default (override via the `environment` input).
 
-Requires `contents: write` (draft and publish the Release), `packages: write` (push to GHCR), and `id-token: write` (cosign keyless signing) at the called job. A `production` environment is used by default (override via the `environment` input).
+The caller must provide a `Dockerfile` at its repo root. Optionally, register `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` in the `production` environment to enable `dhi.io` (Docker Hardened Images) login during builds.
 
 ```yaml
 name: Release
@@ -246,15 +241,11 @@ jobs:
 
 ### `release-homebrew-tap.yml`
 
-End-to-end release pipeline for Go CLIs distributed via the `iwamot/homebrew-tap` cask tap: drafts a GitHub Release, runs `goreleaser` (binaries + cask file under `dist/`), opens a cask-update PR against `iwamot/homebrew-tap` with auto-merge enabled, then flips the draft to published.
+End-to-end release pipeline for Go CLIs distributed via the `iwamot/homebrew-tap` cask tap: drafts a GitHub Release, runs `goreleaser` (binaries + cask file under `dist/`), opens a cask-update PR against `iwamot/homebrew-tap` with auto-merge enabled, and publishes the Release. Runs in the `production` environment by default (override via the `environment` input).
 
-Requires `contents: write` at the called job (the GitHub App token for the tap repo is minted from the passed secrets and does not consume caller permissions). A `production` environment is used by default (override via the `environment` input).
+The caller must provide a `.goreleaser.yaml` that emits binaries and a `dist/<cask_name>.rb` cask file, and register `HOMEBREW_TAP_APP_CLIENT_ID` / `HOMEBREW_TAP_APP_PRIVATE_KEY` (GitHub App credentials for the tap repo) in the `production` environment.
 
-The tap repo (`iwamot/homebrew-tap`) and bot identity are hardcoded. The cask source path is `dist/<cask_name>.rb` and the tap destination is `Casks/<cask_name>.rb`; the update branch is `cask-update-<cask_name>-<TAG>`. `cask_name` defaults to the caller repository name.
-
-Required:
-
-- `homebrew_tap_app_client_id` / `homebrew_tap_app_private_key` secrets: GitHub App credentials with access to `iwamot/homebrew-tap`.
+The tap repo (`iwamot/homebrew-tap`) and bot identity are hardcoded. The cask source path is `dist/<cask_name>.rb`, the tap destination is `Casks/<cask_name>.rb`, and the update branch is `cask-update-<cask_name>-<TAG>`. `cask_name` defaults to the caller repository name. The GitHub App token for the tap repo is minted from the passed secrets and does not consume caller permissions.
 
 ```yaml
 name: Release
@@ -279,8 +270,6 @@ jobs:
 
 Create a GitHub Release for the pushed tag with auto-generated notes. For repos that publish only a GitHub Release with no artifact distribution step (no Docker image, no package registry, no binary upload).
 
-Requires `contents: write` granted at the calling job level.
-
 ```yaml
 name: Release
 
@@ -299,12 +288,12 @@ jobs:
 
 ### `renovate.yml`
 
-Requires a `production` environment on the caller with `RENOVATE_APP_CLIENT_ID` and `RENOVATE_APP_PRIVATE_KEY` secrets (GitHub App credentials used to mint a Renovate access token).
+Runs Renovate with a GitHub App token. The caller must define a `production` environment containing `RENOVATE_APP_CLIENT_ID` and `RENOVATE_APP_PRIVATE_KEY` (GitHub App credentials).
 
-Optional behavior:
+Optional auto-detection:
 
-- If the caller's repository has a `mise.toml` with `aqua:astral-sh/uv` in its `[tools]` section, its version is auto-applied to Renovate as `RENOVATE_CONSTRAINTS={"uv":"..."}`.
-- If `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets are passed, `dhi.io` Docker Hub authentication is configured via `RENOVATE_HOST_RULES`.
+- If the caller's `mise.toml` has `aqua:astral-sh/uv` under `[tools]`, its version is applied as `RENOVATE_CONSTRAINTS={"uv":"..."}`.
+- If `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` are passed, `dhi.io` is configured via `RENOVATE_HOST_RULES`.
 
 ```yaml
 name: Renovate
