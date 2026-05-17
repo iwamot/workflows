@@ -11,8 +11,11 @@ iwamot's shared reusable GitHub Actions workflows.
 | `compatibility-python.yml` | Run the caller's `compatibility.sh` across a matrix of Python versions. |
 | `dependabot-auto-merge.yml` | Enable auto-merge for non-major Dependabot PRs. |
 | `dependency-review.yml` | Run `actions/dependency-review-action` on pull requests. |
-| `publish-ecr-public.yml` | Build a multi-arch Docker image, push to Amazon ECR Public, sign with cosign, and attach an SBOM attestation. |
-| `publish-ghcr.yml` | Build a multi-arch Docker image, push to `ghcr.io/<owner>/<repo>`, sign with cosign, and attach an SBOM attestation. |
+| `publish-ecr-public.yml` | **Deprecated** — use `release-ecr-public.yml`. Build a multi-arch Docker image, push to Amazon ECR Public, sign with cosign, and attach an SBOM attestation. |
+| `publish-ghcr.yml` | **Deprecated** — use `release-ghcr.yml`. Build a multi-arch Docker image, push to `ghcr.io/<owner>/<repo>`, sign with cosign, and attach an SBOM attestation. |
+| `release-ecr-public.yml` | Draft a GitHub Release, run the `publish-ecr-public.yml` pipeline, then flip the draft to published. |
+| `release-ghcr.yml` | Draft a GitHub Release, run the `publish-ghcr.yml` pipeline, then flip the draft to published. |
+| `release-homebrew-tap.yml` | Draft a GitHub Release, run `goreleaser`, open a cask-update PR against `iwamot/homebrew-tap`, then flip the draft to published. |
 | `release-only.yml` | Create a GitHub Release from a pushed tag with auto-generated notes. |
 | `renovate.yml` | Run Renovate with GitHub App authentication. |
 | `validate.yml` | Run `validate.sh` under mise. |
@@ -185,6 +188,8 @@ jobs:
 
 ### `publish-ecr-public.yml`
 
+> **Deprecated in v6.2.0.** Use [`release-ecr-public.yml`](#release-ecr-publicyml) instead, which wraps this pipeline with the draft/publish GitHub Release bookends. Scheduled for removal in v7.0.0.
+
 Same build/sign/SBOM pipeline as `publish-ghcr.yml`, but pushes to Amazon ECR Public (`us-east-1`) using OIDC to assume the IAM role passed via `aws_role_arn`.
 
 Requires `id-token: write` at the caller's workflow level. A `production` environment is used by default (override via the `environment` input).
@@ -216,6 +221,8 @@ jobs:
 
 ### `publish-ghcr.yml`
 
+> **Deprecated in v6.2.0.** Use [`release-ghcr.yml`](#release-ghcryml) instead, which wraps this pipeline with the draft/publish GitHub Release bookends. Scheduled for removal in v7.0.0.
+
 Build a multi-arch Docker image (linux/amd64, linux/arm64), push it to `ghcr.io/<owner>/<repo>`, then sign with cosign (keyless via OIDC) and attach a SPDX-JSON SBOM attestation. Uses the caller's `GITHUB_TOKEN` for GHCR login — no registry credentials required.
 
 Requires `packages: write` and `id-token: write` at the caller's workflow level. A `production` environment is used by default (override via the `environment` input).
@@ -243,6 +250,97 @@ jobs:
       # Optional: enable dhi.io authentication during builds
       dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
       dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
+```
+
+### `release-ecr-public.yml`
+
+End-to-end release pipeline that drafts a GitHub Release, runs the `publish-ecr-public.yml` build/push/sign matrix, then flips the draft to published. Inputs and the `aws_role_arn` secret match `publish-ecr-public.yml`.
+
+Requires `contents: write` (draft and publish the Release) and `id-token: write` (OIDC for AWS role assumption) at the called job. A `production` environment is used by default (override via the `environment` input).
+
+Required:
+
+- `registry_image` input: Full ECR Public image URI (e.g. `public.ecr.aws/xxxxxxxx/namespace/repo`).
+- `aws_role_arn` secret: IAM role ARN to assume via OIDC.
+
+```yaml
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions: {}
+
+jobs:
+  release:
+    uses: iwamot/workflows/.github/workflows/release-ecr-public.yml@<sha> # vX.X.X
+    permissions:
+      contents: write
+      id-token: write
+    with:
+      registry_image: public.ecr.aws/xxxxxxxx/namespace/repo
+    secrets:
+      aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
+```
+
+### `release-ghcr.yml`
+
+End-to-end release pipeline that drafts a GitHub Release, runs the `publish-ghcr.yml` build/push/sign matrix, then flips the draft to published. Optional `dockerhub_username` / `dockerhub_token` secrets enable `dhi.io` login during builds.
+
+Requires `contents: write` (draft and publish the Release), `packages: write` (push to GHCR), and `id-token: write` (cosign keyless signing) at the called job. A `production` environment is used by default (override via the `environment` input).
+
+```yaml
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions: {}
+
+jobs:
+  release:
+    uses: iwamot/workflows/.github/workflows/release-ghcr.yml@<sha> # vX.X.X
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    secrets:
+      # Optional: enable dhi.io authentication during builds
+      dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+      dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
+```
+
+### `release-homebrew-tap.yml`
+
+End-to-end release pipeline for Go CLIs distributed via the `iwamot/homebrew-tap` cask tap: drafts a GitHub Release, runs `goreleaser` (binaries + cask file under `dist/`), opens a cask-update PR against `iwamot/homebrew-tap` with auto-merge enabled, then flips the draft to published.
+
+Requires `contents: write` at the called job (the GitHub App token for the tap repo is minted from the passed secrets and does not consume caller permissions). A `production` environment is used by default (override via the `environment` input).
+
+The tap repo (`iwamot/homebrew-tap`) and bot identity are hardcoded. The cask source path is `dist/<cask_name>.rb` and the tap destination is `Casks/<cask_name>.rb`; the update branch is `cask-update-<cask_name>-<TAG>`. `cask_name` defaults to the caller repository name.
+
+Required:
+
+- `homebrew_tap_app_client_id` / `homebrew_tap_app_private_key` secrets: GitHub App credentials with access to `iwamot/homebrew-tap`.
+
+```yaml
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions: {}
+
+jobs:
+  release:
+    uses: iwamot/workflows/.github/workflows/release-homebrew-tap.yml@<sha> # vX.X.X
+    permissions:
+      contents: write
+    secrets:
+      homebrew_tap_app_client_id: ${{ secrets.HOMEBREW_TAP_APP_CLIENT_ID }}
+      homebrew_tap_app_private_key: ${{ secrets.HOMEBREW_TAP_APP_PRIVATE_KEY }}
 ```
 
 ### `release-only.yml`

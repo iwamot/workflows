@@ -1,5 +1,4 @@
-# Deprecated in v6.2.0. Use release-ecr-public.yml instead. Scheduled for removal in v7.0.0.
-name: Publish to ECR Public
+name: Release with ECR Public publish
 
 on:
   workflow_call:
@@ -19,12 +18,31 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
   REGISTRY_IMAGE: ${{ inputs.registry_image }}
   AWS_REGION: us-east-1
 
 jobs:
+  release-draft:
+    name: release-draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    permissions:
+      contents: write  # to create the draft GitHub Release
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
+        with:
+          egress-policy: audit
+
+      - uses: iwamot/actions/release-draft@09a90ef28919b6331a2930f6e61eeca11bc634de # v0.9.0
+
   publish-ecr-public:
+    needs: release-draft
     name: publish-ecr-public
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 10
@@ -66,6 +84,7 @@ jobs:
           platform: ${{ matrix.platform }}
 
   merge-and-sign:
+    needs: publish-ecr-public
     name: merge-and-sign
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -73,8 +92,6 @@ jobs:
     permissions:
       contents: read
       id-token: write  # to mint OIDC token for AWS role assumption and image signing
-    needs:
-      - publish-ecr-public
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
@@ -95,3 +112,18 @@ jobs:
       - uses: iwamot/actions/docker-merge-and-sign@09a90ef28919b6331a2930f6e61eeca11bc634de # v0.9.0
         with:
           registry_image: ${{ env.REGISTRY_IMAGE }}
+
+  release-publish:
+    needs: merge-and-sign
+    name: release-publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    permissions:
+      contents: write  # to flip the draft GitHub Release to published
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
+        with:
+          egress-policy: audit
+
+      - uses: iwamot/actions/release-publish@09a90ef28919b6331a2930f6e61eeca11bc634de # v0.9.0
