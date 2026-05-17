@@ -9,6 +9,7 @@ iwamot's shared reusable GitHub Actions workflows.
 | `compatibility-go.yml` | Run the caller's `compatibility.sh` across a matrix of Go versions. |
 | `compatibility-node.yml` | Run the caller's `compatibility.sh` across a matrix of Node.js versions. |
 | `compatibility-python.yml` | Run the caller's `compatibility.sh` across a matrix of Python versions. |
+| `dco.yml` | Enforce Developer Certificate of Origin (DCO) sign-off on pull requests. |
 | `dependabot-auto-merge.yml` | Enable auto-merge for non-major Dependabot PRs. |
 | `dependency-review.yml` | Run `actions/dependency-review-action` on pull requests. |
 | `release-ecr-public.yml` | Release a multi-arch Docker image to Amazon ECR Public (cosign-signed, SBOM-attested). |
@@ -144,6 +145,23 @@ jobs:
     uses: iwamot/workflows/.github/workflows/compatibility-python.yml@<sha> # vX.X.X
     with:
       python-versions: '["3.11","3.12","3.13","3.14"]'
+```
+
+### `dco.yml`
+
+Wraps `KineticCafe/actions-dco` to enforce Developer Certificate of Origin (DCO) sign-off on pull request commits. Bot-authored commits are skipped automatically by the action.
+
+```yaml
+name: DCO
+
+on:
+  pull_request:
+
+permissions: {}
+
+jobs:
+  dco:
+    uses: iwamot/workflows/.github/workflows/dco.yml@<sha> # vX.X.X
 ```
 
 ### `dependabot-auto-merge.yml`
