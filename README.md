@@ -265,9 +265,9 @@ jobs:
 
 End-to-end release pipeline for Go CLIs distributed via the `iwamot/homebrew-tap` cask tap: drafts a GitHub Release, runs `goreleaser` (binaries + cask file under `dist/`), attests SLSA build provenance for the released binaries, opens a cask-update PR against `iwamot/homebrew-tap` with auto-merge enabled, and publishes the Release. Runs in the `production` environment by default (override via the `environment` input).
 
-The caller must provide a `.goreleaser.yaml` that emits binaries and a `dist/<cask_name>.rb` cask file, and register `HOMEBREW_TAP_APP_CLIENT_ID` / `HOMEBREW_TAP_APP_PRIVATE_KEY` (GitHub App credentials for the tap repo) in the `production` environment.
+The caller must provide a `.goreleaser.yaml` that emits binaries and a `<cask_name>.rb` cask file somewhere under `dist/` (GoReleaser's `homebrew_casks` writes to `dist/homebrew/Casks/<cask_name>.rb` by default), and register `HOMEBREW_TAP_APP_CLIENT_ID` / `HOMEBREW_TAP_APP_PRIVATE_KEY` (GitHub App credentials for the tap repo) in the `production` environment.
 
-The tap repo (`iwamot/homebrew-tap`) and bot identity are hardcoded. The cask source path is `dist/<cask_name>.rb`, the tap destination is `Casks/<cask_name>.rb`, and the update branch is `cask-update-<cask_name>-<TAG>`. `cask_name` defaults to the caller repository name. The GitHub App token for the tap repo is minted from the passed secrets and does not consume caller permissions.
+The tap repo (`iwamot/homebrew-tap`) and bot identity are hardcoded. The cask source is located via `find dist -name "<cask_name>.rb" -type f`, the tap destination is `Casks/<cask_name>.rb`, and the update branch is `cask-update-<cask_name>-<TAG>`. `cask_name` defaults to the caller repository name. The GitHub App token for the tap repo is minted from the passed secrets and does not consume caller permissions.
 
 ```yaml
 name: Release

@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       cask_name:
-        description: 'Cask file name without .rb, used for dist/<cask_name>.rb source path, Casks/<cask_name>.rb tap destination, and PR title / branch name. Defaults to the caller repository name.'
+        description: 'Cask file name without .rb. The matching .rb file is located under dist/ (typically dist/homebrew/Casks/<cask_name>.rb as GoReleaser writes by default) and uploaded to Casks/<cask_name>.rb in the tap. Also used as part of the PR title / branch name. Defaults to the caller repository name.'
         type: string
         default: ${{ github.event.repository.name }}
       environment:
@@ -65,9 +65,9 @@ jobs:
         run: |
           set -euo pipefail
 
-          CASK_FILE="dist/${CASK_NAME}.rb"
-          if [ ! -f "${CASK_FILE}" ]; then
-            echo "Cask file ${CASK_FILE} not found" >&2
+          CASK_FILE=$(find dist -name "${CASK_NAME}.rb" -type f | head -n1)
+          if [ -z "${CASK_FILE}" ]; then
+            echo "Cask file ${CASK_NAME}.rb not found under dist/" >&2
             exit 1
           fi
           CONTENTS_B64=$(base64 -w0 < "${CASK_FILE}")
