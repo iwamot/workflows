@@ -12,9 +12,9 @@ iwamot's shared reusable GitHub Actions workflows.
 | `dco.yml` | Enforce Developer Certificate of Origin (DCO) sign-off on pull requests. |
 | `dependabot-auto-merge.yml` | Enable auto-merge for non-major Dependabot PRs. |
 | `dependency-review.yml` | Run `actions/dependency-review-action` on pull requests. |
-| `release-ecr-public.yml` | Release a multi-arch Docker image to Amazon ECR Public (cosign-signed, SBOM-attested). |
-| `release-ghcr.yml` | Release a multi-arch Docker image to `ghcr.io/<owner>/<repo>` (cosign-signed, SBOM-attested). |
-| `release-homebrew-tap.yml` | Release a Go CLI as a Homebrew cask via `iwamot/homebrew-tap`. |
+| `release-ecr-public.yml` | Release a multi-arch Docker image to Amazon ECR Public (cosign-signed, SBOM-attested, build-provenance-attested). |
+| `release-ghcr.yml` | Release a multi-arch Docker image to `ghcr.io/<owner>/<repo>` (cosign-signed, SBOM-attested, build-provenance-attested). |
+| `release-homebrew-tap.yml` | Release a Go CLI as a Homebrew cask via `iwamot/homebrew-tap` (build-provenance-attested). |
 | `release-only.yml` | Create a GitHub Release from a pushed tag with auto-generated notes. |
 | `renovate.yml` | Run Renovate with GitHub App authentication. |
 | `validate.yml` | Run `validate.sh` under mise. |
@@ -204,7 +204,7 @@ jobs:
 
 ### `release-ecr-public.yml`
 
-End-to-end release pipeline that drafts a GitHub Release, builds and pushes a multi-arch (linux/amd64, linux/arm64) Docker image to Amazon ECR Public (`us-east-1`), signs the merged manifest with cosign, attaches an SPDX-JSON SBOM attestation, and publishes the Release. The `aws_role_arn` is assumed via OIDC. Runs in the `production` environment by default (override via the `environment` input).
+End-to-end release pipeline that drafts a GitHub Release, builds and pushes a multi-arch (linux/amd64, linux/arm64) Docker image to Amazon ECR Public (`us-east-1`), signs the merged manifest with cosign, attaches an SPDX-JSON SBOM attestation, uploads a SLSA build provenance attestation, and publishes the Release. The `aws_role_arn` is assumed via OIDC. Runs in the `production` environment by default (override via the `environment` input).
 
 The caller must provide a `Dockerfile` at its repo root, and register the `AWS_ROLE_ARN` secret in the `production` environment.
 
@@ -223,6 +223,8 @@ jobs:
     permissions:
       contents: write
       id-token: write
+      attestations: write
+      artifact-metadata: write
     with:
       registry_image: public.ecr.aws/xxxxxxxx/namespace/repo
     secrets:
@@ -231,7 +233,7 @@ jobs:
 
 ### `release-ghcr.yml`
 
-End-to-end release pipeline that drafts a GitHub Release, builds and pushes a multi-arch (linux/amd64, linux/arm64) Docker image to `ghcr.io/<owner>/<repo>` using the caller's `GITHUB_TOKEN`, signs the merged manifest with cosign (keyless via OIDC), attaches an SPDX-JSON SBOM attestation, and publishes the Release. Runs in the `production` environment by default (override via the `environment` input).
+End-to-end release pipeline that drafts a GitHub Release, builds and pushes a multi-arch (linux/amd64, linux/arm64) Docker image to `ghcr.io/<owner>/<repo>` using the caller's `GITHUB_TOKEN`, signs the merged manifest with cosign (keyless via OIDC), attaches an SPDX-JSON SBOM attestation, uploads a SLSA build provenance attestation, and publishes the Release. Runs in the `production` environment by default (override via the `environment` input).
 
 The caller must provide a `Dockerfile` at its repo root. Optionally, register `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` in the `production` environment to enable `dhi.io` (Docker Hardened Images) login during builds.
 
@@ -251,6 +253,8 @@ jobs:
       contents: write
       packages: write
       id-token: write
+      attestations: write
+      artifact-metadata: write
     secrets:
       # Optional: enable dhi.io authentication during builds
       dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -259,7 +263,7 @@ jobs:
 
 ### `release-homebrew-tap.yml`
 
-End-to-end release pipeline for Go CLIs distributed via the `iwamot/homebrew-tap` cask tap: drafts a GitHub Release, runs `goreleaser` (binaries + cask file under `dist/`), opens a cask-update PR against `iwamot/homebrew-tap` with auto-merge enabled, and publishes the Release. Runs in the `production` environment by default (override via the `environment` input).
+End-to-end release pipeline for Go CLIs distributed via the `iwamot/homebrew-tap` cask tap: drafts a GitHub Release, runs `goreleaser` (binaries + cask file under `dist/`), attests SLSA build provenance for the released binaries, opens a cask-update PR against `iwamot/homebrew-tap` with auto-merge enabled, and publishes the Release. Runs in the `production` environment by default (override via the `environment` input).
 
 The caller must provide a `.goreleaser.yaml` that emits binaries and a `dist/<cask_name>.rb` cask file, and register `HOMEBREW_TAP_APP_CLIENT_ID` / `HOMEBREW_TAP_APP_PRIVATE_KEY` (GitHub App credentials for the tap repo) in the `production` environment.
 
@@ -279,6 +283,9 @@ jobs:
     uses: iwamot/workflows/.github/workflows/release-homebrew-tap.yml@<sha> # vX.X.X
     permissions:
       contents: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
     secrets:
       homebrew_tap_app_client_id: ${{ secrets.HOMEBREW_TAP_APP_CLIENT_ID }}
       homebrew_tap_app_private_key: ${{ secrets.HOMEBREW_TAP_APP_PRIVATE_KEY }}

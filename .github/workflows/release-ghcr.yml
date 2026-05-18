@@ -37,7 +37,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: iwamot/actions/release-draft@287a9c9bfcc0bbf77670ad44804a5a66fdfb35bf # v1.0.0
+      - uses: iwamot/actions/release-draft@e26fd78393da9f5ea2134cbf1e7c50ceeec931ad # v2.0.0
 
   publish-ghcr:
     needs: release-draft
@@ -82,7 +82,7 @@ jobs:
           username: ${{ secrets.dockerhub_username }}
           password: ${{ secrets.dockerhub_token }}
 
-      - uses: iwamot/actions/docker-build-digest@287a9c9bfcc0bbf77670ad44804a5a66fdfb35bf # v1.0.0
+      - uses: iwamot/actions/docker-build-digest@e26fd78393da9f5ea2134cbf1e7c50ceeec931ad # v2.0.0
         with:
           registry_image: ${{ env.REGISTRY_IMAGE }}
           platform: ${{ matrix.platform }}
@@ -93,8 +93,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      id-token: write  # to mint OIDC token for image signing
+      id-token: write  # to mint OIDC tokens for cosign and attest
       packages: write  # to push the merged manifest to GHCR
+      attestations: write  # to write the provenance attestation
+      artifact-metadata: write  # to record artifact metadata for the attestation
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
@@ -108,7 +110,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: iwamot/actions/docker-merge-and-sign@287a9c9bfcc0bbf77670ad44804a5a66fdfb35bf # v1.0.0
+      - uses: iwamot/actions/docker-merge-and-sign@e26fd78393da9f5ea2134cbf1e7c50ceeec931ad # v2.0.0
         with:
           registry_image: ${{ env.REGISTRY_IMAGE }}
 
@@ -125,4 +127,4 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: iwamot/actions/release-publish@287a9c9bfcc0bbf77670ad44804a5a66fdfb35bf # v1.0.0
+      - uses: iwamot/actions/release-publish@e26fd78393da9f5ea2134cbf1e7c50ceeec931ad # v2.0.0
