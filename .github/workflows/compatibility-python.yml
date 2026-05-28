@@ -42,6 +42,7 @@ jobs:
     name: compatibility-python
     needs:
       - per-python
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 1
     permissions: {}
@@ -51,4 +52,6 @@ jobs:
         with:
           egress-policy: audit
 
-      - run: 'true'
+      - env:
+          RESULT: ${{ needs.per-python.result }}
+        run: '[ "$RESULT" = "success" ]'
