@@ -42,9 +42,9 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: iwamot/actions/release-draft@e26fd78393da9f5ea2134cbf1e7c50ceeec931ad # v2.0.0
+      - uses: iwamot/actions/release-draft@dbe39b23ea600743e3fbb619d775ce08c61f753f # v2.0.1
 
-      - uses: iwamot/actions/go-publish@e26fd78393da9f5ea2134cbf1e7c50ceeec931ad # v2.0.0
+      - uses: iwamot/actions/go-publish@dbe39b23ea600743e3fbb619d775ce08c61f753f # v2.0.1
 
       - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: tap-token
@@ -114,4 +114,4 @@ jobs:
           gh pr merge -R iwamot/homebrew-tap "${BRANCH}" \
             --squash --auto --delete-branch
 
-      - uses: iwamot/actions/release-publish@e26fd78393da9f5ea2134cbf1e7c50ceeec931ad # v2.0.0
+      - uses: iwamot/actions/release-publish@dbe39b23ea600743e3fbb619d775ce08c61f753f # v2.0.1
