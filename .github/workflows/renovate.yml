@@ -33,6 +33,7 @@ on:
         options:
           - info
           - debug
+          - trace
 
 permissions: {}
 
