@@ -55,6 +55,7 @@ jobs:
               feat)       label=feature ;;
               fix)        label=bugfix ;;
               chore|docs) label=maintenance ;;
+              article)    label=article ;;
               *)          echo "No matching prefix in title: $TITLE"; exit 0 ;;
             esac
           fi
