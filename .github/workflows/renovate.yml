@@ -97,3 +97,4 @@ jobs:
         env:
           LOG_LEVEL: ${{ inputs.log-level || 'info' }}
           RENOVATE_REPOSITORIES: ${{ github.repository }}
+          RENOVATE_ALLOWED_UNSAFE_EXECUTIONS: '["mise"]'
