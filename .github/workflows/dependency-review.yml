@@ -2,6 +2,12 @@ name: 'Dependency review'
 
 on:
   workflow_call:
+    inputs:
+      allow-ghsas:
+        description: 'Comma-separated GitHub Advisory IDs to allow (e.g. "GHSA-abcd-1234-5678")'
+        type: string
+        required: false
+        default: ''
   pull_request:
     branches: [ "main" ]
 
@@ -35,3 +41,4 @@ jobs:
           comment-summary-in-pr: always
           license-check: false
           show-openssf-scorecard: false
+          allow-ghsas: ${{ inputs.allow-ghsas }}

@@ -184,7 +184,7 @@ jobs:
 
 ### `dependency-review.yml`
 
-Wraps `actions/dependency-review-action` to flag dependency changes that introduce known vulnerabilities on pull requests.
+Wraps `actions/dependency-review-action` to flag dependency changes that introduce known vulnerabilities on pull requests. The optional `allow-ghsas` input (comma-separated GitHub Advisory IDs, passed via `with:`) waives specific advisories, e.g. ones with no patched version available.
 
 ```yaml
 name: 'Dependency review'
