@@ -3,7 +3,7 @@ name: 'Auto label by title'
 on:
   workflow_call:
   pull_request:
-    types: [opened]
+    types: [opened, edited]
     branches: [ "main" ]
 
 permissions: {}
@@ -35,11 +35,14 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Always: breaking-change marker ('!' before ':') -> add 'breaking' label.
-          # Idempotent: gh pr edit --add-label is a no-op if already present.
+          # The title is the only input: derive the labels it implies, then make
+          # the PR match. Re-running on an edited title therefore replaces a
+          # stale label instead of piling a second one on top.
+          desired=""
+
+          # Breaking-change marker ('!' before ':')
           if echo "$TITLE" | grep -qE '^[a-zA-Z]+(\([^)]+\))?!:'; then
-            gh pr edit "$PR" --repo "$REPO" --add-label breaking
-            echo "Marked breaking"
+            desired="breaking"
           fi
 
           # Parse Conventional Commits prefix and scope
@@ -56,9 +59,39 @@ jobs:
               fix)        label=bugfix ;;
               chore|docs) label=maintenance ;;
               article)    label=article ;;
-              *)          echo "No matching prefix in title: $TITLE"; exit 0 ;;
+              *)          label="" ;;
             esac
           fi
+          if [ -n "$label" ]; then
+            desired="$desired $label"
+          fi
 
-          gh pr edit "$PR" --repo "$REPO" --add-label "$label"
-          echo "Labeled: $label"
+          # Labels this workflow owns and may remove. `dependencies` is added but
+          # never removed: Renovate sets it too, via :label(dependencies).
+          managed="feature bugfix maintenance article breaking"
+
+          current=$(gh pr view "$PR" --repo "$REPO" --json labels --jq '.labels[].name')
+          has() { echo "$current" | grep -qxF "$1"; }
+
+          args=()
+          for l in $desired; do
+            if ! has "$l"; then
+              args+=(--add-label "$l")
+            fi
+          done
+          for l in $managed; do
+            case " $desired " in
+              *" $l "*) continue ;;
+            esac
+            if has "$l"; then
+              args+=(--remove-label "$l")
+            fi
+          done
+
+          if [ ${#args[@]} -eq 0 ]; then
+            echo "Labels already match the title: ${desired:-(none)}"
+            exit 0
+          fi
+
+          gh pr edit "$PR" --repo "$REPO" "${args[@]}"
+          echo "Applied:${args[*]}"
