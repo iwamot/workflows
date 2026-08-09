@@ -50,9 +50,8 @@ GOBIN="$TMP" go install ./...
 name: Compatibility
 
 on:
-  push:
-    branches: [main]
   pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
@@ -98,9 +97,8 @@ npm install --silent --no-audit --no-fund "$TARBALL"
 name: Compatibility
 
 on:
-  push:
-    branches: [main]
   pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
@@ -138,9 +136,8 @@ uv run --isolated --no-project --with ./dist/*.whl <cli> <fixture>
 name: Compatibility
 
 on:
-  push:
-    branches: [main]
   pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
@@ -280,7 +277,7 @@ name: Release
 
 on:
   push:
-    tags: ['v*']
+    tags: ['v*.*.*']
 
 permissions: {}
 
@@ -306,7 +303,7 @@ name: Release
 
 on:
   push:
-    tags: ['v*']
+    tags: ['v*.*.*']
 
 permissions: {}
 
@@ -335,7 +332,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 */6 * * *'
   workflow_dispatch:
     inputs:
       log-level:
@@ -373,6 +370,7 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
@@ -394,6 +392,7 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
