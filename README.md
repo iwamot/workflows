@@ -28,6 +28,8 @@ Each workflow is invoked from a caller workflow via `uses:` at the job level. Th
 
 Run a caller-provided `compatibility.sh` under each Go version in the matrix. The caller's `mise.toml` must declare `go` under `[tools]`; the matrix version is exported as `MISE_GO_VERSION`, overriding that entry. The script defines what "compatibility" means; `mise` is preinstalled on the runner but no tools are installed, so the script must call `mise install` itself.
 
+`go-versions` must list every minor from the `go` directive in `go.mod` through the `go` pin in `mise.toml`, and the workflow fails if it does not. The matrix is a second copy of a range the caller already declares, so raising either end without updating it would silently narrow or widen what is tested.
+
 A typical script exercises the `go install` path in an isolated `GOBIN`:
 
 ```bash
@@ -66,6 +68,8 @@ jobs:
 ### `compatibility-node.yml`
 
 Run a caller-provided `compatibility.sh` under each Node.js version in the matrix. The caller's `mise.toml` must declare `node` under `[tools]`; the matrix version is exported as `MISE_NODE_VERSION`, overriding that entry. The script defines what "compatibility" means; `mise` is preinstalled on the runner but no tools are installed, so the script must call `mise install` itself.
+
+`node-versions` must list every even major from the lower bound of `engines.node` in `package.json` through the `node` pin in `mise.toml`, and the workflow fails if it does not. Odd majors are skipped because they never reach LTS. The matrix is a second copy of a range the caller already declares, so raising either end without updating it would silently narrow or widen what is tested.
 
 A typical script builds the package once and exercises the packed tarball in an isolated directory:
 
@@ -114,6 +118,8 @@ jobs:
 Run a caller-provided `compatibility.sh` under each Python version in the matrix. The caller's `mise.toml` must declare `aqua:astral-sh/uv` under `[tools]`; the matrix version is exported as `UV_PYTHON` for `uv` to pick up. The script defines what "compatibility" means; `mise` is preinstalled on the runner but no tools are installed, so the script must call `mise install` itself.
 
 Use this canonical name when invoking `mise install <tool>` explicitly — a short alias like `mise install uv` may install the binary but leave the shim inactive in a clean environment.
+
+`python-versions` must list every minor from the lower bound of `requires-python` in `pyproject.toml` through the `python` pin in `mise.toml`, and the workflow fails if it does not. The matrix is a second copy of a range the caller already declares, so raising either end without updating it would silently narrow or widen what is tested.
 
 A typical script builds the wheel once and exercises it under the matrix Python in an isolated environment:
 

@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       node-versions:
-        description: 'JSON array of Node.js versions to test against (e.g. ''["20","22","24"]'').'
+        description: 'JSON array of Node.js versions to test against (e.g. ''["20","22","24"]''). Must list every even major from the lower bound of `engines.node` in `package.json` through the `node` pin in `mise.toml`.'
         required: true
         type: string
 
@@ -15,6 +15,48 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  matrix-check:
+    name: matrix-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      contents: read
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - env:
+          DECLARED: ${{ inputs.node-versions }}
+        run: |
+          set -euo pipefail
+
+          floor=$(jq -r '.engines.node // ""' package.json | grep -oE '[0-9]+' | head -n1 || true)
+          if [ -z "$floor" ]; then
+            echo "package.json must declare engines.node."
+            exit 1
+          fi
+
+          pin=$(grep -m1 -oE '^node[[:space:]]*=[[:space:]]*"[0-9]+' mise.toml | grep -oE '[0-9]+$' || true)
+          if [ -z "$pin" ]; then
+            echo "mise.toml must pin node under [tools]."
+            exit 1
+          fi
+
+          expected=$(seq "$floor" 2 "$pin" | jq -Rsc 'split("\n")[:-1]')
+          actual=$(jq -c . <<<"$DECLARED")
+
+          if [ "$expected" != "$actual" ]; then
+            echo "node-versions must list every even major from engines.node (>=$floor) through the mise pin ($pin)."
+            echo "  expected: $expected"
+            echo "  actual:   $actual"
+            exit 1
+          fi
+
   per-node:
     name: per-node
     runs-on: ubuntu-latest
@@ -44,6 +86,7 @@ jobs:
   compatibility-node:
     name: compatibility-node
     needs:
+      - matrix-check
       - per-node
     if: ${{ always() }}
     runs-on: ubuntu-latest
@@ -56,5 +99,6 @@ jobs:
           egress-policy: audit
 
       - env:
+          CHECK: ${{ needs.matrix-check.result }}
           RESULT: ${{ needs.per-node.result }}
-        run: '[ "$RESULT" = "success" ]'
+        run: '[ "$CHECK" = "success" ] && [ "$RESULT" = "success" ]'

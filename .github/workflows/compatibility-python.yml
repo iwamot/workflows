@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       python-versions:
-        description: 'JSON array of Python versions to test against (e.g. ''["3.11","3.12","3.13","3.14"]'').'
+        description: 'JSON array of Python versions to test against (e.g. ''["3.11","3.12","3.13","3.14"]''). Must list every minor from the lower bound of `requires-python` in `pyproject.toml` through the `python` pin in `mise.toml`.'
         required: true
         type: string
 
@@ -15,6 +15,48 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  matrix-check:
+    name: matrix-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      contents: read
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - env:
+          DECLARED: ${{ inputs.python-versions }}
+        run: |
+          set -euo pipefail
+
+          floor=$(grep -m1 -oE 'requires-python[[:space:]]*=[[:space:]]*">=3\.[0-9]+' pyproject.toml | grep -oE '3\.[0-9]+$' || true)
+          if [ -z "$floor" ]; then
+            echo "pyproject.toml must declare requires-python with a >= lower bound."
+            exit 1
+          fi
+
+          pin=$(grep -m1 -oE '^python[[:space:]]*=[[:space:]]*"3\.[0-9]+' mise.toml | grep -oE '3\.[0-9]+$' || true)
+          if [ -z "$pin" ]; then
+            echo "mise.toml must pin python under [tools]."
+            exit 1
+          fi
+
+          expected=$(seq "${floor#3.}" "${pin#3.}" | sed 's/^/3./' | jq -Rsc 'split("\n")[:-1]')
+          actual=$(jq -c . <<<"$DECLARED")
+
+          if [ "$expected" != "$actual" ]; then
+            echo "python-versions must list every minor from requires-python (>=$floor) through the mise pin ($pin)."
+            echo "  expected: $expected"
+            echo "  actual:   $actual"
+            exit 1
+          fi
+
   per-python:
     name: per-python
     runs-on: ubuntu-latest
@@ -44,6 +86,7 @@ jobs:
   compatibility-python:
     name: compatibility-python
     needs:
+      - matrix-check
       - per-python
     if: ${{ always() }}
     runs-on: ubuntu-latest
@@ -56,5 +99,6 @@ jobs:
           egress-policy: audit
 
       - env:
+          CHECK: ${{ needs.matrix-check.result }}
           RESULT: ${{ needs.per-python.result }}
-        run: '[ "$RESULT" = "success" ]'
+        run: '[ "$CHECK" = "success" ] && [ "$RESULT" = "success" ]'
