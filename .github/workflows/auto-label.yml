@@ -55,11 +55,12 @@ jobs:
             label=dependencies
           else
             case "$prefix" in
-              feat)       label=feature ;;
-              fix)        label=bugfix ;;
-              chore|docs) label=maintenance ;;
-              article)    label=article ;;
-              *)          label="" ;;
+              feat)    label=feature ;;
+              fix)     label=bugfix ;;
+              docs)    label=documentation ;;
+              chore)   label=maintenance ;;
+              article) label=article ;;
+              *)       label="" ;;
             esac
           fi
           if [ -n "$label" ]; then
@@ -68,7 +69,7 @@ jobs:
 
           # Labels this workflow owns and may remove. `dependencies` is added but
           # never removed: Renovate sets it too, via :label(dependencies).
-          managed="feature bugfix maintenance article breaking"
+          managed="feature bugfix documentation maintenance article breaking"
 
           current=$(gh pr view "$PR" --repo "$REPO" --json labels --jq '.labels[].name')
           has() { echo "$current" | grep -qxF "$1"; }
