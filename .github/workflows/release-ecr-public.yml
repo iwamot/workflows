@@ -39,7 +39,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: iwamot/actions/release-draft@fc024b0463f7096b399354cbfb2a97fcc77ec79d # v2.0.2
+      - uses: iwamot/actions/release-draft@e811a56926a7d215c7dad8ab65326e0e71fe3aed # v2.0.3
 
   publish-ecr-public:
     needs: release-draft
@@ -78,7 +78,7 @@ jobs:
         with:
           registry-type: public
 
-      - uses: iwamot/actions/docker-build-digest@fc024b0463f7096b399354cbfb2a97fcc77ec79d # v2.0.2
+      - uses: iwamot/actions/docker-build-digest@e811a56926a7d215c7dad8ab65326e0e71fe3aed # v2.0.3
         with:
           registry_image: ${{ env.REGISTRY_IMAGE }}
           platform: ${{ matrix.platform }}
@@ -111,7 +111,7 @@ jobs:
         with:
           registry-type: public
 
-      - uses: iwamot/actions/docker-merge-and-sign@fc024b0463f7096b399354cbfb2a97fcc77ec79d # v2.0.2
+      - uses: iwamot/actions/docker-merge-and-sign@e811a56926a7d215c7dad8ab65326e0e71fe3aed # v2.0.3
         with:
           registry_image: ${{ env.REGISTRY_IMAGE }}
 
@@ -128,4 +128,4 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: iwamot/actions/release-publish@fc024b0463f7096b399354cbfb2a97fcc77ec79d # v2.0.2
+      - uses: iwamot/actions/release-publish@e811a56926a7d215c7dad8ab65326e0e71fe3aed # v2.0.3
