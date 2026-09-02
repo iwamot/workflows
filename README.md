@@ -6,12 +6,14 @@ iwamot's shared reusable GitHub Actions workflows.
 
 | Workflow | Purpose |
 |----------|---------|
+| `auto-label.yml` | Apply a release-note label to a pull request from the Conventional Commits prefix in its title. |
 | `compatibility-go.yml` | Run the caller's `compatibility.sh` across a matrix of Go versions. |
 | `compatibility-node.yml` | Run the caller's `compatibility.sh` across a matrix of Node.js versions. |
 | `compatibility-python.yml` | Run the caller's `compatibility.sh` across a matrix of Python versions. |
 | `dco.yml` | Enforce Developer Certificate of Origin (DCO) sign-off on pull requests. |
 | `dependabot-auto-merge.yml` | Enable auto-merge for non-major Dependabot PRs. |
 | `dependency-review.yml` | Run `actions/dependency-review-action` on pull requests. |
+| `oide.yml` | Pull shared governance files with `iwamot/oide` and open an auto-merging PR when they drift. |
 | `release-ecr-public.yml` | Release a multi-arch Docker image to Amazon ECR Public (cosign-signed, SBOM-attested, build-provenance-attested). |
 | `release-ghcr.yml` | Release a multi-arch Docker image to `ghcr.io/<owner>/<repo>` (cosign-signed, SBOM-attested, build-provenance-attested). |
 | `release-homebrew-tap.yml` | Release a Go CLI as a Homebrew cask via `iwamot/homebrew-tap` (build-provenance-attested). |
@@ -23,6 +25,27 @@ iwamot's shared reusable GitHub Actions workflows.
 ## Usage
 
 Each workflow is invoked from a caller workflow via `uses:` at the job level. The caller defines its own triggers and workflow-level `permissions`.
+
+### `auto-label.yml`
+
+Labels a pull request from the Conventional Commits prefix of its title so `release.yml` can categorize it in the release notes. The title is the only input: `feat:` gives `feature`, `fix:` gives `bugfix`, `docs:` gives `documentation`, `chore:` gives `maintenance`, `article:` gives `article`, a `!` before the colon adds `breaking`, and a `deps` scope gives `dependencies` regardless of type. Re-running on an edited title replaces a stale label. Pull requests from forks are skipped.
+
+```yaml
+name: 'Auto label by title'
+
+on:
+  pull_request:
+    types: [opened, edited]
+    branches: [ "main" ]
+
+permissions: {}
+
+jobs:
+  label:
+    permissions:
+      pull-requests: write  # to add a label to the PR
+    uses: iwamot/workflows/.github/workflows/auto-label.yml@<sha> # vX.X.X
+```
 
 ### `compatibility-go.yml`
 
@@ -203,6 +226,36 @@ permissions:
 jobs:
   dependency-review:
     uses: iwamot/workflows/.github/workflows/dependency-review.yml@<sha> # vX.X.X
+```
+
+### `oide.yml`
+
+Pulls the files listed in each source's `Oidefile` into the caller with `iwamot/oide` and, when anything changed, opens (or force-updates) a `chore: pull files via oide` pull request with auto-merge enabled. `SOURCES` lists one `org/repo@ref` per line; a `#` line is ignored, which is where a Renovate annotation for the pin goes. The caller must register `OIDE_APP_CLIENT_ID` / `OIDE_APP_PRIVATE_KEY` (GitHub App credentials) in the `production` environment; the App token does the push and PR creation, so the caller's own permissions stay read-only.
+
+```yaml
+name: Oide
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/oide.yml
+
+permissions: {}
+
+jobs:
+  pull:
+    permissions:
+      contents: read
+    uses: iwamot/workflows/.github/workflows/oide.yml@<sha> # vX.X.X
+    with:
+      SOURCES: |
+        # renovate: datasource=github-tags depName=iwamot/repo-template
+        iwamot/repo-template@vX.X.X
+    secrets:
+      OIDE_APP_CLIENT_ID: ${{ secrets.OIDE_APP_CLIENT_ID }}
+      OIDE_APP_PRIVATE_KEY: ${{ secrets.OIDE_APP_PRIVATE_KEY }}
 ```
 
 ### `release-ecr-public.yml`
