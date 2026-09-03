@@ -5,14 +5,8 @@ on:
     inputs:
       SOURCES:
         type: string
-        required: false
-        default: ''
+        required: true
         description: 'What to pull from where: one source per line, as `org/repo@ref` optionally followed by the Oidefile to read for it. Give each source its own Oidefile so no two claim the same path. A `#` line is ignored, which is where a `# renovate: datasource=...` annotation goes — it has to sit directly above the pin it belongs to.'
-      TEMPLATE_VERSION:
-        type: string
-        required: false
-        default: ''
-        description: 'Deprecated, and ignored when SOURCES is given: the source ref of iwamot/repo-template, on its own. Kept until every caller has moved to SOURCES.'
     secrets:
       OIDE_APP_CLIENT_ID:
         required: true
@@ -51,19 +45,15 @@ jobs:
           egress-policy: audit
 
       - name: Resolve sources
-        # workflow_call passes the caller-supplied inputs. The push trigger (workflows
+        # workflow_call passes the caller-supplied SOURCES. The push trigger (workflows
         # self-run) doesn't go through workflow_call, so 'inputs' is empty and we fall
         # back to the workflows-internal env pin.
         env:
           INPUT_SOURCES: ${{ inputs.SOURCES }}
-          INPUT_TEMPLATE_VERSION: ${{ inputs.TEMPLATE_VERSION }}
         run: |
           set -euo pipefail
 
-          sources="${INPUT_SOURCES}"
-          if [ -z "${sources}" ]; then
-            sources="iwamot/repo-template@${INPUT_TEMPLATE_VERSION:-${TEMPLATE_VERSION}}"
-          fi
+          sources="${INPUT_SOURCES:-iwamot/repo-template@${TEMPLATE_VERSION}}"
 
           {
             echo "SOURCES<<OIDE_EOF"
