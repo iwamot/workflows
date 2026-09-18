@@ -60,9 +60,9 @@ jobs:
             uploads.github.com:443
             ${{ inputs.allowed_endpoints }}
 
-      - uses: iwamot/actions/release-draft@84a812c285cd6fd17539271e4e1f39617673a2de # v2.8.0
+      - uses: iwamot/actions/release-draft@877dcb21b865c1824a70cfebde66313b1d58a860 # v2.8.1
 
-      - uses: iwamot/actions/go-publish@84a812c285cd6fd17539271e4e1f39617673a2de # v2.8.0
+      - uses: iwamot/actions/go-publish@877dcb21b865c1824a70cfebde66313b1d58a860 # v2.8.1
 
       - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: tap-token
@@ -132,4 +132,4 @@ jobs:
           gh pr merge -R iwamot/homebrew-tap "${BRANCH}" \
             --squash --auto --delete-branch
 
-      - uses: iwamot/actions/release-publish@84a812c285cd6fd17539271e4e1f39617673a2de # v2.8.0
+      - uses: iwamot/actions/release-publish@877dcb21b865c1824a70cfebde66313b1d58a860 # v2.8.1

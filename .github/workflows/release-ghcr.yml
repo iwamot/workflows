@@ -59,7 +59,7 @@ jobs:
             tuf-repo-cdn.sigstore.dev:443
             ${{ inputs.allowed_endpoints }}
 
-      - uses: iwamot/actions/release-draft@84a812c285cd6fd17539271e4e1f39617673a2de # v2.8.0
+      - uses: iwamot/actions/release-draft@877dcb21b865c1824a70cfebde66313b1d58a860 # v2.8.1
 
   publish-ghcr:
     needs: release-draft
@@ -122,7 +122,7 @@ jobs:
           username: ${{ secrets.dockerhub_username }}
           password: ${{ secrets.dockerhub_token }}
 
-      - uses: iwamot/actions/docker-build-digest@84a812c285cd6fd17539271e4e1f39617673a2de # v2.8.0
+      - uses: iwamot/actions/docker-build-digest@877dcb21b865c1824a70cfebde66313b1d58a860 # v2.8.1
         with:
           registry_image: ${{ env.REGISTRY_IMAGE }}
           platform: ${{ matrix.platform }}
@@ -168,7 +168,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: iwamot/actions/docker-merge-and-sign@84a812c285cd6fd17539271e4e1f39617673a2de # v2.8.0
+      - uses: iwamot/actions/docker-merge-and-sign@877dcb21b865c1824a70cfebde66313b1d58a860 # v2.8.1
         with:
           registry_image: ${{ env.REGISTRY_IMAGE }}
 
@@ -203,4 +203,4 @@ jobs:
             tuf-repo-cdn.sigstore.dev:443
             ${{ inputs.allowed_endpoints }}
 
-      - uses: iwamot/actions/release-publish@84a812c285cd6fd17539271e4e1f39617673a2de # v2.8.0
+      - uses: iwamot/actions/release-publish@877dcb21b865c1824a70cfebde66313b1d58a860 # v2.8.1
