@@ -264,6 +264,8 @@ End-to-end release pipeline that drafts a GitHub Release, builds and pushes a mu
 
 The caller must provide a `Dockerfile` at its repo root, and register the `AWS_ROLE_ARN` secret in the `production` environment.
 
+Egress is blocked: `harden-runner` allows the endpoints this pipeline reaches and nothing else. A caller whose release reaches another endpoint adds it with the `allowed_endpoints` input (whitespace separated `domain:port`), which takes effect on the next run instead of waiting for a release here.
+
 ```yaml
 name: Release
 
@@ -292,6 +294,8 @@ jobs:
 End-to-end release pipeline that drafts a GitHub Release, builds and pushes a multi-arch (linux/amd64, linux/arm64) Docker image to `ghcr.io/<owner>/<repo>` using the caller's `GITHUB_TOKEN`, signs the merged manifest with cosign (keyless via OIDC), attaches an SPDX-JSON SBOM attestation, uploads a SLSA build provenance attestation, and publishes the Release. Runs in the `production` environment by default (override via the `environment` input).
 
 The caller must provide a `Dockerfile` at its repo root. Optionally, register `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` in the `production` environment to enable `dhi.io` (Docker Hardened Images) login during builds.
+
+Egress is blocked: `harden-runner` allows the endpoints this pipeline reaches and nothing else. A caller whose release reaches another endpoint adds it with the `allowed_endpoints` input (whitespace separated `domain:port`), which takes effect on the next run instead of waiting for a release here.
 
 ```yaml
 name: Release
@@ -325,6 +329,8 @@ The caller must provide a `.goreleaser.yaml` that emits binaries and a `<cask_na
 
 The tap repo (`iwamot/homebrew-tap`) and bot identity are hardcoded. The cask source is located via `find dist -name "<cask_name>.rb" -type f`, the tap destination is `Casks/<cask_name>.rb`, and the update branch is `cask-update-<cask_name>-<TAG>`. `cask_name` defaults to the caller repository name. The GitHub App token for the tap repo is minted from the passed secrets and does not consume caller permissions.
 
+Egress is blocked: `harden-runner` allows the endpoints this pipeline reaches and nothing else. A caller whose release reaches another endpoint adds it with the `allowed_endpoints` input (whitespace separated `domain:port`), which takes effect on the next run instead of waiting for a release here.
+
 ```yaml
 name: Release
 
@@ -350,6 +356,8 @@ jobs:
 ### `release-only.yml`
 
 Create a GitHub Release for the pushed tag with auto-generated notes. For repos that publish only a GitHub Release with no artifact distribution step (no Docker image, no package registry, no binary upload).
+
+Egress is blocked: `harden-runner` allows the endpoints this pipeline reaches and nothing else. A caller whose release reaches another endpoint adds it with the `allowed_endpoints` input (whitespace separated `domain:port`), which takes effect on the next run instead of waiting for a release here.
 
 ```yaml
 name: Release

@@ -3,6 +3,10 @@ name: Release with ECR Public publish
 on:
   workflow_call:
     inputs:
+      allowed_endpoints:
+        description: 'Endpoints the jobs may reach on top of the ones the release needs, whitespace separated (domain:port)'
+        type: string
+        default: ''
       registry_image:
         description: 'Full ECR Public image URI (e.g. public.ecr.aws/xxxxxxxx/namespace/repo)'
         type: string
@@ -37,7 +41,27 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            api.ecr-public.us-east-1.amazonaws.com:443
+            api.github.com:443
+            auth.docker.io:443
+            d2glxqk2uabbnd.cloudfront.net:443
+            d5l0dvt14r5h8.cloudfront.net:443
+            deb.debian.org:443
+            fulcio.sigstore.dev:443
+            github.com:443
+            production.cloudfront.docker.com:443
+            public.ecr.aws:443
+            raw.githubusercontent.com:443
+            registry-1.docker.io:443
+            registry.npmjs.org:443
+            rekor.sigstore.dev:443
+            release-assets.githubusercontent.com:443
+            sts.us-east-1.amazonaws.com:443
+            timestamp.sigstore.dev:443
+            tuf-repo-cdn.sigstore.dev:443
+            ${{ inputs.allowed_endpoints }}
 
       - uses: iwamot/actions/release-draft@84a812c285cd6fd17539271e4e1f39617673a2de # v2.8.0
 
@@ -65,7 +89,27 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            api.ecr-public.us-east-1.amazonaws.com:443
+            api.github.com:443
+            auth.docker.io:443
+            d2glxqk2uabbnd.cloudfront.net:443
+            d5l0dvt14r5h8.cloudfront.net:443
+            deb.debian.org:443
+            fulcio.sigstore.dev:443
+            github.com:443
+            production.cloudfront.docker.com:443
+            public.ecr.aws:443
+            raw.githubusercontent.com:443
+            registry-1.docker.io:443
+            registry.npmjs.org:443
+            rekor.sigstore.dev:443
+            release-assets.githubusercontent.com:443
+            sts.us-east-1.amazonaws.com:443
+            timestamp.sigstore.dev:443
+            tuf-repo-cdn.sigstore.dev:443
+            ${{ inputs.allowed_endpoints }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
@@ -98,7 +142,27 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            api.ecr-public.us-east-1.amazonaws.com:443
+            api.github.com:443
+            auth.docker.io:443
+            d2glxqk2uabbnd.cloudfront.net:443
+            d5l0dvt14r5h8.cloudfront.net:443
+            deb.debian.org:443
+            fulcio.sigstore.dev:443
+            github.com:443
+            production.cloudfront.docker.com:443
+            public.ecr.aws:443
+            raw.githubusercontent.com:443
+            registry-1.docker.io:443
+            registry.npmjs.org:443
+            rekor.sigstore.dev:443
+            release-assets.githubusercontent.com:443
+            sts.us-east-1.amazonaws.com:443
+            timestamp.sigstore.dev:443
+            tuf-repo-cdn.sigstore.dev:443
+            ${{ inputs.allowed_endpoints }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
@@ -126,6 +190,26 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            api.ecr-public.us-east-1.amazonaws.com:443
+            api.github.com:443
+            auth.docker.io:443
+            d2glxqk2uabbnd.cloudfront.net:443
+            d5l0dvt14r5h8.cloudfront.net:443
+            deb.debian.org:443
+            fulcio.sigstore.dev:443
+            github.com:443
+            production.cloudfront.docker.com:443
+            public.ecr.aws:443
+            raw.githubusercontent.com:443
+            registry-1.docker.io:443
+            registry.npmjs.org:443
+            rekor.sigstore.dev:443
+            release-assets.githubusercontent.com:443
+            sts.us-east-1.amazonaws.com:443
+            timestamp.sigstore.dev:443
+            tuf-repo-cdn.sigstore.dev:443
+            ${{ inputs.allowed_endpoints }}
 
       - uses: iwamot/actions/release-publish@84a812c285cd6fd17539271e4e1f39617673a2de # v2.8.0

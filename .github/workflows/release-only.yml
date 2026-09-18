@@ -2,6 +2,11 @@ name: Release
 
 on:
   workflow_call:
+    inputs:
+      allowed_endpoints:
+        description: 'Endpoints the jobs may reach on top of the ones the release needs, whitespace separated (domain:port)'
+        type: string
+        default: ''
   push:
     tags:
       - 'v*.*.*'
@@ -23,7 +28,11 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+            ${{ inputs.allowed_endpoints }}
 
       - name: Create GitHub Release
         env:
