@@ -86,7 +86,7 @@ jobs:
           permission-pull-requests: write  # to open the PR
           permission-issues: write         # to create the maintenance label
 
-      - uses: iwamot/oide@c08d08a83ef7849801e52c9c58db23418311816a # v2.1.0
+      - uses: iwamot/oide@f16ea05d8abc5e64eafac13e1912e3f54ff58f04 # v2.1.1
         with:
           sources: ${{ env.SOURCES }}
 
