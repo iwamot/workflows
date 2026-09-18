@@ -3,6 +3,10 @@ name: Release with Homebrew tap update
 on:
   workflow_call:
     inputs:
+      allowed_endpoints:
+        description: 'Endpoints the jobs may reach on top of the ones the release needs, whitespace separated (domain:port)'
+        type: string
+        default: ''
       cask_name:
         description: 'Cask file name without .rb. The matching .rb file is located under dist/ (typically dist/homebrew/Casks/<cask_name>.rb as GoReleaser writes by default) and uploaded to Casks/<cask_name>.rb in the tap. Also used as part of the PR title / branch name. Defaults to the caller repository name.'
         type: string
@@ -40,7 +44,21 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            dl.google.com:443
+            fulcio.sigstore.dev:443
+            github.com:443
+            mise-versions.jdx.dev:443
+            mise.jdx.dev:443
+            proxy.golang.org:443
+            rekor.sigstore.dev:443
+            release-assets.githubusercontent.com:443
+            sum.golang.org:443
+            tuf-repo-cdn.sigstore.dev:443
+            uploads.github.com:443
+            ${{ inputs.allowed_endpoints }}
 
       - uses: iwamot/actions/release-draft@84a812c285cd6fd17539271e4e1f39617673a2de # v2.8.0
 
