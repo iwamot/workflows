@@ -24,7 +24,7 @@ permissions: {}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   # renovate: datasource=github-tags depName=iwamot/repo-template
