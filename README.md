@@ -384,7 +384,7 @@ Optional auto-detection:
 - If the caller's `mise.toml` has `aqua:astral-sh/uv` under `[tools]`, its version is applied as `RENOVATE_CONSTRAINTS={"uv":"..."}`.
 - If `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` are passed, `dhi.io` is configured via `RENOVATE_HOST_RULES`.
 
-`mise` is allowed via `RENOVATE_ALLOWED_UNSAFE_EXECUTIONS`, so if the caller commits a `mise.lock`, Renovate keeps it in sync (`mise lock`) when updating tools in `mise.toml`.
+If the caller commits a `mise.lock`, Renovate keeps it in sync (`mise lock`) when updating tools in `mise.toml`. It runs mise in safe mode (`MISE_SAFE=1`), so the project's mise config cannot execute code while Renovate holds a write token.
 
 ```yaml
 name: Renovate
