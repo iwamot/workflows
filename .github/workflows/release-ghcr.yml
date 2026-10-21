@@ -31,7 +31,7 @@ env:
 jobs:
   release-draft:
     name: release-draft
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 1
     permissions:
       contents: write  # to create the draft GitHub Release
@@ -113,7 +113,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to Docker Hardened Images
-        if: env.DOCKERHUB_USERNAME != ''
+        if: ${{ env.DOCKERHUB_USERNAME != '' }}
         env:
           DOCKERHUB_USERNAME: ${{ secrets.dockerhub_username }}
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
@@ -130,7 +130,7 @@ jobs:
   merge-and-sign:
     needs: publish-ghcr
     name: merge-and-sign
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
       id-token: write  # to mint OIDC tokens for cosign and attest
@@ -175,7 +175,7 @@ jobs:
   release-publish:
     needs: merge-and-sign
     name: release-publish
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 1
     permissions:
       contents: write  # to flip the draft GitHub Release to published

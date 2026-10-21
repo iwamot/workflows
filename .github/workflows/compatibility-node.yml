@@ -14,10 +14,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   matrix-check:
     name: matrix-check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 2
     permissions:
       contents: read
@@ -59,7 +63,7 @@ jobs:
 
   per-node:
     name: per-node
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -97,7 +101,7 @@ jobs:
       - matrix-check
       - per-node
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 1
     permissions: {}
     steps:
