@@ -33,7 +33,7 @@ env:
 jobs:
   release-draft:
     name: release-draft
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 1
     permissions:
       contents: write  # to create the draft GitHub Release
@@ -130,7 +130,7 @@ jobs:
   merge-and-sign:
     needs: publish-ecr-public
     name: merge-and-sign
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     environment: ${{ inputs.environment }}
     permissions:
@@ -182,7 +182,7 @@ jobs:
   release-publish:
     needs: merge-and-sign
     name: release-publish
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 1
     permissions:
       contents: write  # to flip the draft GitHub Release to published

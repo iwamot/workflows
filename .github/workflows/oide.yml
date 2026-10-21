@@ -30,10 +30,14 @@ env:
   # renovate: datasource=github-tags depName=iwamot/repo-template
   TEMPLATE_VERSION: v1.10.1
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   pull:
     name: pull
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     environment: production  # so env-scoped OIDE_APP_* secrets are accessible on self-run
     permissions:
