@@ -72,9 +72,25 @@ jobs:
         run: |
           set -euo pipefail
           if [ -f mise.toml ]; then
-            uv_version=$(python3 -c "import tomllib; d=tomllib.load(open('mise.toml','rb')); t=d.get('tools', {}).get('aqua:astral-sh/uv', ''); print(t.get('version', '') if isinstance(t, dict) else t)")
-            if [ -n "$uv_version" ]; then
-              printf 'RENOVATE_CONSTRAINTS={"uv":"%s"}\n' "$uv_version" >> "$GITHUB_ENV"
+            # Run Renovate's mise at min_version, the same version CI installs, so
+            # `mise lock` resolves the repo the way CI does. Without a constraint
+            # Renovate picks its own mise, and newer releases skip git:: task
+            # includes, dropping the tools those tasks declare from mise.lock.
+            constraints=$(python3 - <<'PY'
+          import json, tomllib
+          d = tomllib.load(open("mise.toml", "rb"))
+          c = {}
+          t = d.get("tools", {}).get("aqua:astral-sh/uv", "")
+          uv = t.get("version", "") if isinstance(t, dict) else t
+          if uv:
+              c["uv"] = uv
+          if d.get("min_version"):
+              c["mise"] = d["min_version"]
+          print(json.dumps(c, separators=(",", ":")) if c else "")
+          PY
+            )
+            if [ -n "$constraints" ]; then
+              printf 'RENOVATE_CONSTRAINTS=%s\n' "$constraints" >> "$GITHUB_ENV"
             fi
           fi
           if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
