@@ -357,6 +357,8 @@ jobs:
 
 Create a GitHub Release for the pushed tag with auto-generated notes. For repos that publish only a GitHub Release with no artifact distribution step (no Docker image, no package registry, no binary upload).
 
+For UI releases, choose **Actions → Release → Run workflow**, keep the default branch selected, and enter a tag such as `v1.2.3`. The workflow creates a lightweight tag at the run's commit and publishes the release in the same run. Tag pushes remain supported. A retry can reuse a tag at the same commit; an existing tag at another commit is rejected. Published releases are never replaced. Only stable `vMAJOR.MINOR.PATCH` tags are accepted by the manual entry point.
+
 Egress is blocked: `harden-runner` allows the endpoints this pipeline reaches and nothing else. A caller whose release reaches another endpoint adds it with the `allowed_endpoints` input (whitespace separated `domain:port`), which takes effect on the next run instead of waiting for a release here.
 
 ```yaml
@@ -365,12 +367,20 @@ name: Release
 on:
   push:
     tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v1.2.3)'
+        required: true
+        type: string
 
 permissions: {}
 
 jobs:
   release:
     uses: iwamot/workflows/.github/workflows/release-only.yml@<sha> # vX.X.X
+    with:
+      tag: ${{ inputs.tag || '' }}
     permissions:
       contents: write
 ```
