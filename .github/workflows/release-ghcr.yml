@@ -3,6 +3,10 @@ name: Release with GHCR publish
 on:
   workflow_call:
     inputs:
+      tag:
+        description: 'Tag to create for a manual release from the default branch'
+        type: string
+        default: ''
       allowed_endpoints:
         description: 'Endpoints the jobs may reach on top of the ones the release needs, whitespace separated (domain:port)'
         type: string
@@ -22,7 +26,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-release-${{ inputs.tag || github.ref_name }}
   cancel-in-progress: false
 
 env:
@@ -31,10 +35,14 @@ env:
 jobs:
   release-draft:
     name: release-draft
+    outputs:
+      tag: ${{ steps.release-tag.outputs.tag }}
     runs-on: ubuntu-26.04
-    timeout-minutes: 1
+    timeout-minutes: 12
     permissions:
       contents: write  # to create the draft GitHub Release
+      checks: read  # to wait for required CI before tagging
+      statuses: read  # to inspect required legacy commit statuses
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
@@ -59,7 +67,14 @@ jobs:
             tuf-repo-cdn.sigstore.dev:443
             ${{ inputs.allowed_endpoints }}
 
-      - uses: iwamot/actions/release-draft@ec014ff64ffe0bbb47e97ae8e8358fdae2a510eb # v2.13.0
+      - uses: iwamot/actions/release-tag@e9e74be15f07a22d117c3fe0f8f225653de549dc # v2.13.1
+        id: release-tag
+        with:
+          tag: ${{ inputs.tag || '' }}
+
+      - uses: iwamot/actions/release-draft@e9e74be15f07a22d117c3fe0f8f225653de549dc # v2.13.1
+        with:
+          tag: ${{ steps.release-tag.outputs.tag }}
 
   publish-ghcr:
     needs: release-draft
@@ -122,13 +137,14 @@ jobs:
           username: ${{ secrets.dockerhub_username }}
           password: ${{ secrets.dockerhub_token }}
 
-      - uses: iwamot/actions/docker-build-digest@ec014ff64ffe0bbb47e97ae8e8358fdae2a510eb # v2.13.0
+      - uses: iwamot/actions/docker-build-digest@e9e74be15f07a22d117c3fe0f8f225653de549dc # v2.13.1
         with:
+          tag: ${{ needs.release-draft.outputs.tag }}
           registry_image: ${{ env.REGISTRY_IMAGE }}
           platform: ${{ matrix.platform }}
 
   merge-and-sign:
-    needs: publish-ghcr
+    needs: [release-draft, publish-ghcr]
     name: merge-and-sign
     runs-on: ubuntu-26.04
     timeout-minutes: 10
@@ -168,12 +184,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: iwamot/actions/docker-merge-and-sign@ec014ff64ffe0bbb47e97ae8e8358fdae2a510eb # v2.13.0
+      - uses: iwamot/actions/docker-merge-and-sign@e9e74be15f07a22d117c3fe0f8f225653de549dc # v2.13.1
         with:
+          tag: ${{ needs.release-draft.outputs.tag }}
           registry_image: ${{ env.REGISTRY_IMAGE }}
 
   release-publish:
-    needs: merge-and-sign
+    needs: [release-draft, merge-and-sign]
     name: release-publish
     runs-on: ubuntu-26.04
     timeout-minutes: 1
@@ -203,4 +220,6 @@ jobs:
             tuf-repo-cdn.sigstore.dev:443
             ${{ inputs.allowed_endpoints }}
 
-      - uses: iwamot/actions/release-publish@ec014ff64ffe0bbb47e97ae8e8358fdae2a510eb # v2.13.0
+      - uses: iwamot/actions/release-publish@e9e74be15f07a22d117c3fe0f8f225653de549dc # v2.13.1
+        with:
+          tag: ${{ needs.release-draft.outputs.tag }}

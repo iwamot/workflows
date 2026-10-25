@@ -258,6 +258,12 @@ jobs:
       OIDE_APP_PRIVATE_KEY: ${{ secrets.OIDE_APP_PRIVATE_KEY }}
 ```
 
+### Manual releases with artifacts
+
+`release-ghcr.yml`, `release-ecr-public.yml`, and `release-homebrew-tap.yml` accept the same optional `tag` input as `release-only.yml`. Add the `workflow_dispatch` tag input to the existing caller and pass it through `with.tag`. Grant `checks: read` and `statuses: read` in addition to that channel's existing permissions. Keep the current release workflow filename and production environment for trusted-publishing and OIDC policies.
+
+The shared workflow resolves the tag and waits for the required CI before creating the draft. Every build, image version, cask update, and final release uses that tag. All assets are uploaded before the draft is published, preserving immutable releases. Manual execution still has the default-branch OIDC identity; AWS role policies for ECR must allow that branch when enabling manual releases.
+
 ### `release-ecr-public.yml`
 
 End-to-end release pipeline that drafts a GitHub Release, builds and pushes a multi-arch (linux/amd64, linux/arm64) Docker image to Amazon ECR Public (`us-east-1`), signs the merged manifest with cosign, attaches an SPDX-JSON SBOM attestation, uploads a SLSA build provenance attestation, and publishes the Release. The `aws_role_arn` is assumed via OIDC. Runs in the `production` environment by default (override via the `environment` input).
