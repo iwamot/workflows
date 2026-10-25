@@ -323,6 +323,9 @@ jobs:
 
 ### `release-homebrew-tap.yml`
 
+For UI releases, add a `workflow_dispatch` tag input to the caller and forward it as `with.tag`, as in the `release-only.yml` example. Keep the production environment and existing permissions, adding `checks: read` and `statuses: read` for shared CI preflight support. Tag pushes remain supported. The resolved tag selects the source checkout, GoReleaser version, cask update, and final Release.
+
+
 End-to-end release pipeline for Go CLIs distributed via the `iwamot/homebrew-tap` cask tap: drafts a GitHub Release, runs `goreleaser` (binaries + cask file under `dist/`), attests SLSA build provenance for the released binaries, opens a cask-update PR against `iwamot/homebrew-tap` with auto-merge enabled, and publishes the Release. Runs in the `production` environment by default (override via the `environment` input).
 
 The caller must provide a `.goreleaser.yaml` that emits binaries and a `<cask_name>.rb` cask file somewhere under `dist/` (GoReleaser's `homebrew_casks` writes to `dist/homebrew/Casks/<cask_name>.rb` by default), and register `HOMEBREW_TAP_APP_CLIENT_ID` / `HOMEBREW_TAP_APP_PRIVATE_KEY` (GitHub App credentials for the tap repo) in the `production` environment.

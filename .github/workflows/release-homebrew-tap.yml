@@ -3,6 +3,10 @@ name: Release with Homebrew tap update
 on:
   workflow_call:
     inputs:
+      tag:
+        description: 'Tag to create for a manual release from the default branch'
+        type: string
+        default: ''
       allowed_endpoints:
         description: 'Endpoints the jobs may reach on top of the ones the release needs, whitespace separated (domain:port)'
         type: string
@@ -26,17 +30,19 @@ on:
 permissions: {}
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-release-${{ inputs.tag || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
   release:
     name: release
     runs-on: ubuntu-26.04
-    timeout-minutes: 10
+    timeout-minutes: 20
     environment: ${{ inputs.environment }}
     permissions:
       contents: write  # to create the draft Release, upload binary archives, and publish the Release
+      checks: read  # to wait for required CI before tagging
+      statuses: read  # to inspect required legacy commit statuses
       id-token: write  # to mint OIDC token for attestation
       attestations: write  # to write the provenance attestation
       artifact-metadata: write  # to record artifact metadata for the attestation
@@ -60,9 +66,18 @@ jobs:
             uploads.github.com:443
             ${{ inputs.allowed_endpoints }}
 
-      - uses: iwamot/actions/release-draft@abf40f0c68ccedf952b3a895934925ce60c7e269 # v2.11.0
+      - uses: iwamot/actions/release-tag@ac787438f61b5cbe16cf7b9946d16e6f0af4ff31 # v2.12.0
+        id: release-tag
+        with:
+          tag: ${{ inputs.tag || '' }}
 
-      - uses: iwamot/actions/go-publish@abf40f0c68ccedf952b3a895934925ce60c7e269 # v2.11.0
+      - uses: iwamot/actions/release-draft@ac787438f61b5cbe16cf7b9946d16e6f0af4ff31 # v2.12.0
+        with:
+          tag: ${{ steps.release-tag.outputs.tag }}
+
+      - uses: iwamot/actions/go-publish@ac787438f61b5cbe16cf7b9946d16e6f0af4ff31 # v2.12.0
+        with:
+          tag: ${{ steps.release-tag.outputs.tag }}
 
       - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         id: tap-token
@@ -78,7 +93,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.tap-token.outputs.token }}
           CASK_NAME: ${{ inputs.cask_name }}
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ steps.release-tag.outputs.tag }}
         shell: bash
         run: |
           set -euo pipefail
@@ -132,4 +147,6 @@ jobs:
           gh pr merge -R iwamot/homebrew-tap "${BRANCH}" \
             --squash --auto --delete-branch
 
-      - uses: iwamot/actions/release-publish@abf40f0c68ccedf952b3a895934925ce60c7e269 # v2.11.0
+      - uses: iwamot/actions/release-publish@ac787438f61b5cbe16cf7b9946d16e6f0af4ff31 # v2.12.0
+        with:
+          tag: ${{ steps.release-tag.outputs.tag }}
