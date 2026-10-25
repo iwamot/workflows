@@ -411,6 +411,8 @@ Optional auto-detection:
 
 If the caller commits a `mise.lock`, Renovate keeps it in sync (`mise lock`) when updating tools in `mise.toml`. It runs mise in safe mode (`MISE_SAFE=1`), so the project's mise config cannot execute code while Renovate holds a write token.
 
+Shared `git::` task refs are tracked by the custom manager in `iwamot/renovate-config`. That preset also refreshes `mise.lock` and native dependency sidecars after a shared task update, so changes to task-header tools land in the same PR. This workflow permits only `mise trust mise.toml` and `mise lock` as post-upgrade commands. It passes the job's read-only GitHub token to those commands for release metadata and provenance lookups. The preset installs mise at the caller's existing constraint (derived from `min_version` above). This explicit post-upgrade path trusts the caller's mise config so it can resolve remote task includes; it does not use the native manager's safe mode.
+
 ```yaml
 name: Renovate
 
