@@ -72,18 +72,21 @@ jobs:
         run: |
           set -euo pipefail
           if [ -f mise.toml ]; then
-            # Run Renovate's mise at min_version, the same version CI installs, so
-            # `mise lock` resolves the repo the way CI does. Without a constraint
-            # Renovate picks its own mise, and newer releases skip git:: task
-            # includes, dropping the tools those tasks declare from mise.lock.
+            # Run Renovate's tools at the versions CI installs from mise.toml, so
+            # the lockfiles it writes resolve the way CI does. Without a
+            # constraint Renovate picks its own: a newer mise skips git:: task
+            # includes, and requires-python alone can land on a Python that the
+            # locked dependencies do not build for.
             constraints=$(python3 - <<'PY'
           import json, tomllib
           d = tomllib.load(open("mise.toml", "rb"))
+          tools = d.get("tools", {})
           c = {}
-          t = d.get("tools", {}).get("aqua:astral-sh/uv", "")
-          uv = t.get("version", "") if isinstance(t, dict) else t
-          if uv:
-              c["uv"] = uv
+          for name, key in (("uv", "aqua:astral-sh/uv"), ("python", "python"), ("node", "node")):
+              t = tools.get(key, "")
+              v = t.get("version", "") if isinstance(t, dict) else t
+              if v:
+                  c[name] = v
           if d.get("min_version"):
               c["mise"] = d["min_version"]
           print(json.dumps(c, separators=(",", ":")) if c else "")
