@@ -11,6 +11,12 @@ on:
         description: 'Endpoints the jobs may reach on top of the ones the release needs, whitespace separated (domain:port)'
         type: string
         default: ''
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v8.16.0)'
+        required: true
+        type: string
   push:
     tags:
       - 'v*.*.*'
