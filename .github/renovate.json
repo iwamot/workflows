@@ -1,23 +1,4 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>iwamot/renovate-config#v0.23.0"],
-  "packageRules": [
-    {
-      "description": "Refresh the validate workflow's action lockfile after action updates",
-      "matchManagers": ["github-actions"],
-      "matchFileNames": [".github/workflows/validate.yml"],
-      "postUpgradeTasks": {
-        "commands": [
-          "mise trust mise.toml",
-          "mise exec -- gh-actions-lock --no-interactive --no-narrow .github/workflows/validate.yml"
-        ],
-        "executionMode": "update",
-        "installTools": {
-          "mise": {},
-          "gh": {}
-        },
-        "fileFilters": [".github/workflows/actions.lock"]
-      }
-    }
-  ]
+  "extends": ["github>iwamot/renovate-config#v0.23.0"]
 }
