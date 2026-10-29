@@ -498,11 +498,6 @@ jobs:
 ./validate.sh
 ```
 
-This repository locks every workflow's direct and transitive action dependencies in `.github/workflows/actions.lock`. Renovate's native GitHub Actions manager regenerates that lockfile in the same PR when it updates an action. `validate.sh` verifies the lockfile against GitHub.
+This repository locks every workflow's direct and transitive action dependencies in `.github/workflows/actions.lock`. Renovate's native GitHub Actions manager regenerates that lockfile in the same PR when it updates an action. The shared `gha-lint` task, called by `validate.sh`, verifies the lockfile against GitHub.
 
-After editing action references or adding a workflow, regenerate and verify the lockfile:
-
-```bash
-mise exec -- gh-actions-lock --no-interactive --no-narrow
-mise exec -- gh-actions-lock --verify
-```
+After manual changes to action references or workflows, regenerate the lockfile with [gh-actions-lock](https://github.com/github/gh-actions-lock) and run `mise run gha-lint` to verify it.
