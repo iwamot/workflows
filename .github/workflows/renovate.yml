@@ -122,7 +122,7 @@ jobs:
         env:
           LOG_LEVEL: ${{ inputs.log-level || 'info' }}
           RENOVATE_REPOSITORIES: ${{ github.repository }}
-          # Refresh mise locks and the validate workflow's action lockfile.
-          RENOVATE_ALLOWED_COMMANDS: '["^mise trust mise\\.toml$", "^mise lock$", "^mise exec -- gh-actions-lock --no-interactive --no-narrow \\.github/workflows/validate\\.yml$"]'
+          # The shared preset refreshes task tool locks after git:: ref updates.
+          RENOVATE_ALLOWED_COMMANDS: '["^mise trust mise\\.toml$", "^mise lock$"]'
           # Lock provenance lookups need authenticated access, not the App write token.
           RENOVATE_CUSTOM_ENV_VARIABLES: '{"GITHUB_TOKEN":"${{ github.token }}"}'
