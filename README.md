@@ -102,8 +102,8 @@ set -euo pipefail
 eval "$(mise activate bash)"
 mise install
 
-bun install --frozen-lockfile
-bun run build
+aube install --frozen-lockfile
+aube run build
 
 TARBALL="$PWD/$(npm pack --silent)"
 TMP=$(mktemp -d)
