@@ -7,15 +7,15 @@ workflows:
         - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
     '.github/workflows/compatibility-go.yml':
         - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
-        - 'jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d'
+        - 'jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195'
         - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
     '.github/workflows/compatibility-node.yml':
         - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
-        - 'jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d'
+        - 'jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195'
         - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
     '.github/workflows/compatibility-python.yml':
         - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
-        - 'jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d'
+        - 'jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195'
         - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
     '.github/workflows/dco.yml':
         - 'kineticcafe/actions-dco@5f160e3ee086af8fc0fb567b8add0937d074123e'
@@ -164,6 +164,11 @@ dependencies:
         commit: 'sha1-813dd99ac8d67b340170e4da4d2146478ec07c59'
         owner_id: 16149
         repo_id: 1228488802
+    'jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195':
+        ref: 'v5.2.5'
+        commit: 'sha1-6612f0ef07ed2a736cd1e00a94a065522dd41195'
+        owner_id: 216188
+        repo_id: 738284564
     'jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d':
         ref: 'v5.2.4'
         commit: 'sha1-6be3c7ed4c21d4f76b208d351d95aac273ebb76d'
