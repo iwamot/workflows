@@ -38,7 +38,7 @@ workflows:
         - 'iwamot/actions@0cc8920c2941f4e51302920bc6f705f3ad2c0608'
         - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
     '.github/workflows/release-ghcr.yml':
-        - 'docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6'
+        - 'docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550'
         - 'iwamot/actions@0cc8920c2941f4e51302920bc6f705f3ad2c0608'
         - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
     '.github/workflows/release-homebrew-tap.yml':
@@ -128,9 +128,9 @@ dependencies:
         commit: 'sha1-c3c9e263c25d99ce0380d002d59b67737d91b0dc'
         owner_id: 5429470
         repo_id: 241092383
-    'docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6':
-        ref: 'v4.7.0'
-        commit: 'sha1-81c6f93d4bc991e510b342a00b419b3bb4efc5c6'
+    'docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550':
+        ref: 'v4.8.0'
+        commit: 'sha1-8aa5831fb8d48d8f76594c7ddde61ae58019f550'
         owner_id: 5429470
         repo_id: 287743349
     'docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302':
