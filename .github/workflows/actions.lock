@@ -35,18 +35,18 @@ workflows:
     '.github/workflows/release-ecr-public.yml':
         - 'aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd'
         - 'aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd'
-        - 'iwamot/actions@0cc8920c2941f4e51302920bc6f705f3ad2c0608'
+        - 'iwamot/actions@822d705bcb3db0cb3c1f969001c6de5eda9660f1'
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/release-ghcr.yml':
         - 'docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550'
-        - 'iwamot/actions@0cc8920c2941f4e51302920bc6f705f3ad2c0608'
+        - 'iwamot/actions@822d705bcb3db0cb3c1f969001c6de5eda9660f1'
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/release-homebrew-tap.yml':
         - 'actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510'
-        - 'iwamot/actions@0cc8920c2941f4e51302920bc6f705f3ad2c0608'
+        - 'iwamot/actions@822d705bcb3db0cb3c1f969001c6de5eda9660f1'
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/release-only.yml':
-        - 'iwamot/actions@0cc8920c2941f4e51302920bc6f705f3ad2c0608'
+        - 'iwamot/actions@822d705bcb3db0cb3c1f969001c6de5eda9660f1'
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/renovate.yml':
         - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
@@ -55,10 +55,10 @@ workflows:
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/validate-with-coverage.yml':
         - 'codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5'
-        - 'iwamot/actions@0cc8920c2941f4e51302920bc6f705f3ad2c0608'
+        - 'iwamot/actions@822d705bcb3db0cb3c1f969001c6de5eda9660f1'
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/validate.yml':
-        - 'iwamot/actions@0cc8920c2941f4e51302920bc6f705f3ad2c0608'
+        - 'iwamot/actions@822d705bcb3db0cb3c1f969001c6de5eda9660f1'
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
 dependencies:
     'actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6':
@@ -143,9 +143,9 @@ dependencies:
         commit: 'sha1-f87e5991a6d7451dcb8d9637bfbc97413f497069'
         owner_id: 5429470
         repo_id: 288485773
-    'iwamot/actions@0cc8920c2941f4e51302920bc6f705f3ad2c0608':
-        ref: 'v2.13.2'
-        commit: 'sha1-0cc8920c2941f4e51302920bc6f705f3ad2c0608'
+    'iwamot/actions@822d705bcb3db0cb3c1f969001c6de5eda9660f1':
+        ref: 'v2.13.3'
+        commit: 'sha1-822d705bcb3db0cb3c1f969001c6de5eda9660f1'
         owner_id: 16149
         repo_id: 1215968540
         uses:
@@ -157,18 +157,13 @@ dependencies:
             - 'docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc'
             - 'docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302'
             - 'docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069'
-            - 'jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d'
-            - 'sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6'
+            - 'jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b'
+            - 'sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532'
     'iwamot/oide@813dd99ac8d67b340170e4da4d2146478ec07c59':
         ref: 'v2.1.2'
         commit: 'sha1-813dd99ac8d67b340170e4da4d2146478ec07c59'
         owner_id: 16149
         repo_id: 1228488802
-    'jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d':
-        ref: 'v5.2.4'
-        commit: 'sha1-6be3c7ed4c21d4f76b208d351d95aac273ebb76d'
-        owner_id: 216188
-        repo_id: 738284564
     'jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b':
         ref: 'v5.2.7'
         commit: 'sha1-b44d12e7d0d8ee7461bb893e1b1993500433185b'
@@ -184,9 +179,9 @@ dependencies:
         commit: 'sha1-1c0cf989c02653fba0efe7ca5772338860ca71dc'
         owner_id: 38656520
         repo_id: 252754603
-    'sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6':
-        ref: 'v4.1.2'
-        commit: 'sha1-6f9f17788090df1f26f669e9d70d6ae9567deba6'
+    'sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532':
+        ref: 'v4.1.3'
+        commit: 'sha1-756fe2d284c7292c4e9b62c8a28f1e5629c59532'
         owner_id: 71096353
         repo_id: 351211695
     'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a':
