@@ -52,6 +52,8 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 30
     environment: ${{ inputs.environment || 'production' }}
+    env:
+      RENOVATE_CONTAINERBASE_DIR: /tmp/renovate/cache/containerbase
     permissions:
       contents: read
     steps:
@@ -64,6 +66,21 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      - name: Restore Renovate tool downloads
+        id: tool-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.RENOVATE_CONTAINERBASE_DIR }}
+          key: renovate-tools-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            renovate-tools-v1-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Prepare Renovate tool cache permissions
+        # The Renovate container runs as uid 12021, while cache restore runs as the runner.
+        run: |
+          sudo mkdir -p "$RENOVATE_CONTAINERBASE_DIR"
+          sudo chown -R 12021:0 "$RENOVATE_CONTAINERBASE_DIR"
 
       - name: Compose Renovate env
         env:
@@ -115,6 +132,7 @@ jobs:
           permission-checks: write
 
       - name: Run Renovate
+        id: renovate
         uses: renovatebot/github-action@1c0cf989c02653fba0efe7ca5772338860ca71dc # v46.3.12
         with:
           configurationFile: .github/renovate.json
@@ -126,3 +144,11 @@ jobs:
           RENOVATE_ALLOWED_COMMANDS: '["^mise trust mise\\.toml$", "^mise lock$"]'
           # Lock provenance lookups need authenticated access, not the App write token.
           RENOVATE_CUSTOM_ENV_VARIABLES: '{"GITHUB_TOKEN":"${{ github.token }}"}'
+
+      - name: Save Renovate tool downloads
+        # Keep downloads from failed runs so the next retry can reuse them.
+        if: ${{ !cancelled() && (steps.renovate.outcome == 'success' || steps.renovate.outcome == 'failure') }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.RENOVATE_CONTAINERBASE_DIR }}
+          key: ${{ steps.tool-cache.outputs.cache-primary-key }}
