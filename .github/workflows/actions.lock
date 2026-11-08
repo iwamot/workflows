@@ -4,62 +4,62 @@
 version: 'v0.0.3'
 workflows:
     '.github/workflows/auto-label.yml':
-        - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
+        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/compatibility-go.yml':
         - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
         - 'jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b'
-        - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
+        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/compatibility-node.yml':
         - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
         - 'jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b'
-        - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
+        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/compatibility-python.yml':
         - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
         - 'jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b'
-        - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
+        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/dco.yml':
         - 'kineticcafe/actions-dco@5f160e3ee086af8fc0fb567b8add0937d074123e'
-        - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
+        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/dependabot-auto-merge.yml':
         - 'dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98'
-        - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
+        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/dependency-review.yml':
         - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
         - 'actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294'
-        - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
+        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/oide.yml':
         - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
         - 'actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510'
         - 'iwamot/oide@813dd99ac8d67b340170e4da4d2146478ec07c59'
-        - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
+        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/release-ecr-public.yml':
         - 'aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd'
         - 'aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd'
         - 'iwamot/actions@0cc8920c2941f4e51302920bc6f705f3ad2c0608'
-        - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
+        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/release-ghcr.yml':
         - 'docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550'
         - 'iwamot/actions@0cc8920c2941f4e51302920bc6f705f3ad2c0608'
-        - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
+        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/release-homebrew-tap.yml':
         - 'actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510'
         - 'iwamot/actions@0cc8920c2941f4e51302920bc6f705f3ad2c0608'
-        - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
+        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/release-only.yml':
         - 'iwamot/actions@0cc8920c2941f4e51302920bc6f705f3ad2c0608'
-        - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
+        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/renovate.yml':
         - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
         - 'actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510'
         - 'renovatebot/github-action@1c0cf989c02653fba0efe7ca5772338860ca71dc'
-        - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
+        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/validate-with-coverage.yml':
         - 'codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5'
         - 'iwamot/actions@0cc8920c2941f4e51302920bc6f705f3ad2c0608'
-        - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
+        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/validate.yml':
         - 'iwamot/actions@0cc8920c2941f4e51302920bc6f705f3ad2c0608'
-        - 'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43'
+        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
 dependencies:
     'actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6':
         ref: 'v4.2.2'
@@ -189,8 +189,8 @@ dependencies:
         commit: 'sha1-6f9f17788090df1f26f669e9d70d6ae9567deba6'
         owner_id: 71096353
         repo_id: 351211695
-    'step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43':
-        ref: 'v2.22.3'
-        commit: 'sha1-46b06cea07f9e64621fdf066ba77ac6915163d43'
+    'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a':
+        ref: 'v2.22.4'
+        commit: 'sha1-1d88384fd173af6ecb012dfd0264a306b711241a'
         owner_id: 88700172
         repo_id: 422287306
