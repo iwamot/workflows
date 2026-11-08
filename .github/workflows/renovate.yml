@@ -76,11 +76,11 @@ jobs:
           restore-keys: |
             renovate-tools-v1-${{ runner.os }}-${{ runner.arch }}-
 
-      - name: Prepare Renovate tool cache permissions
-        # The Renovate container runs as uid 12021, while cache restore runs as the runner.
+      - name: Prepare Renovate cache permissions
+        # The container also writes repos and package caches under the runner-owned parents.
         run: |
           sudo mkdir -p "$RENOVATE_CONTAINERBASE_DIR"
-          sudo chown -R 12021:0 "$RENOVATE_CONTAINERBASE_DIR"
+          sudo chown -R 12021:0 /tmp/renovate
 
       - name: Compose Renovate env
         env:
