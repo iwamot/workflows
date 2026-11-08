@@ -71,12 +71,12 @@ jobs:
             tuf-repo-cdn.sigstore.dev:443
             ${{ inputs.allowed_endpoints }}
 
-      - uses: iwamot/actions/release-tag@822d705bcb3db0cb3c1f969001c6de5eda9660f1 # v2.13.3
+      - uses: iwamot/actions/release-tag@597ad5f72751d4b28d3540b130dfd69e99274e87 # v2.14.0
         id: release-tag
         with:
           tag: ${{ inputs.tag || '' }}
 
-      - uses: iwamot/actions/release-draft@822d705bcb3db0cb3c1f969001c6de5eda9660f1 # v2.13.3
+      - uses: iwamot/actions/release-draft@597ad5f72751d4b28d3540b130dfd69e99274e87 # v2.14.0
         with:
           tag: ${{ steps.release-tag.outputs.tag }}
 
@@ -137,7 +137,7 @@ jobs:
         with:
           registry-type: public
 
-      - uses: iwamot/actions/docker-build-digest@822d705bcb3db0cb3c1f969001c6de5eda9660f1 # v2.13.3
+      - uses: iwamot/actions/docker-build-digest@597ad5f72751d4b28d3540b130dfd69e99274e87 # v2.14.0
         with:
           tag: ${{ needs.release-draft.outputs.tag }}
           registry_image: ${{ env.REGISTRY_IMAGE }}
@@ -191,7 +191,7 @@ jobs:
         with:
           registry-type: public
 
-      - uses: iwamot/actions/docker-merge-and-sign@822d705bcb3db0cb3c1f969001c6de5eda9660f1 # v2.13.3
+      - uses: iwamot/actions/docker-merge-and-sign@597ad5f72751d4b28d3540b130dfd69e99274e87 # v2.14.0
         with:
           tag: ${{ needs.release-draft.outputs.tag }}
           registry_image: ${{ env.REGISTRY_IMAGE }}
@@ -229,6 +229,6 @@ jobs:
             tuf-repo-cdn.sigstore.dev:443
             ${{ inputs.allowed_endpoints }}
 
-      - uses: iwamot/actions/release-publish@822d705bcb3db0cb3c1f969001c6de5eda9660f1 # v2.13.3
+      - uses: iwamot/actions/release-publish@597ad5f72751d4b28d3540b130dfd69e99274e87 # v2.14.0
         with:
           tag: ${{ needs.release-draft.outputs.tag }}
