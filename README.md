@@ -404,6 +404,8 @@ jobs:
 
 Runs Renovate with a GitHub App token. The caller must define a `production` environment containing `RENOVATE_APP_CLIENT_ID` and `RENOVATE_APP_PRIVATE_KEY` (GitHub App credentials).
 
+Downloaded tools are cached between runs with GitHub Actions Cache. Each run restores the latest tool cache and saves its updates, including downloads completed before a Renovate failure. Tools that are absent from the restored cache still require a download.
+
 Optional auto-detection:
 
 - If the caller's `mise.toml` has `aqua:astral-sh/uv` under `[tools]`, its version is applied as `RENOVATE_CONSTRAINTS={"uv":"..."}`.
