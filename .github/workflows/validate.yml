@@ -32,4 +32,4 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: iwamot/actions/mise-validate@597ad5f72751d4b28d3540b130dfd69e99274e87 # v2.14.0
+      - uses: iwamot/actions/mise-validate@46b78398bf2468a79ef18c5644b7f0ad20b77387 # v2.15.0
