@@ -34,14 +34,14 @@ workflows:
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/release-ghcr.yml':
         - 'docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550'
-        - 'iwamot/actions@46b78398bf2468a79ef18c5644b7f0ad20b77387'
+        - 'iwamot/actions@3236ea780ac15c4e38173c05b18b0d0ac3679ee2'
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/release-homebrew-tap.yml':
         - 'actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510'
-        - 'iwamot/actions@46b78398bf2468a79ef18c5644b7f0ad20b77387'
+        - 'iwamot/actions@3236ea780ac15c4e38173c05b18b0d0ac3679ee2'
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/release-only.yml':
-        - 'iwamot/actions@46b78398bf2468a79ef18c5644b7f0ad20b77387'
+        - 'iwamot/actions@3236ea780ac15c4e38173c05b18b0d0ac3679ee2'
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/renovate.yml':
         - 'actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9'
@@ -51,10 +51,10 @@ workflows:
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/validate-with-coverage.yml':
         - 'codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5'
-        - 'iwamot/actions@46b78398bf2468a79ef18c5644b7f0ad20b77387'
+        - 'iwamot/actions@3236ea780ac15c4e38173c05b18b0d0ac3679ee2'
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/validate.yml':
-        - 'iwamot/actions@46b78398bf2468a79ef18c5644b7f0ad20b77387'
+        - 'iwamot/actions@3236ea780ac15c4e38173c05b18b0d0ac3679ee2'
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
 dependencies:
     'actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6':
@@ -134,9 +134,9 @@ dependencies:
         commit: 'sha1-f87e5991a6d7451dcb8d9637bfbc97413f497069'
         owner_id: 5429470
         repo_id: 288485773
-    'iwamot/actions@46b78398bf2468a79ef18c5644b7f0ad20b77387':
-        ref: 'v2.15.0'
-        commit: 'sha1-46b78398bf2468a79ef18c5644b7f0ad20b77387'
+    'iwamot/actions@3236ea780ac15c4e38173c05b18b0d0ac3679ee2':
+        ref: 'v2.16.0'
+        commit: 'sha1-3236ea780ac15c4e38173c05b18b0d0ac3679ee2'
         owner_id: 16149
         repo_id: 1215968540
         uses:
