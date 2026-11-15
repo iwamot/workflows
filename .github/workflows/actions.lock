@@ -32,11 +32,6 @@ workflows:
         - 'actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510'
         - 'iwamot/oide@813dd99ac8d67b340170e4da4d2146478ec07c59'
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
-    '.github/workflows/release-ecr-public.yml':
-        - 'aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd'
-        - 'aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd'
-        - 'iwamot/actions@597ad5f72751d4b28d3540b130dfd69e99274e87'
-        - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/release-ghcr.yml':
         - 'docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550'
         - 'iwamot/actions@597ad5f72751d4b28d3540b130dfd69e99274e87'
@@ -107,16 +102,6 @@ dependencies:
         commit: 'sha1-66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c'
         owner_id: 16208487
         repo_id: 399925381
-    'aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd':
-        ref: 'v2.1.7'
-        commit: 'sha1-03f1aad4c6c7ffd436567f42f9384779290529bd'
-        owner_id: 57468012
-        repo_id: 220389860
-    'aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd':
-        ref: 'v6.3.0'
-        commit: 'sha1-e1253824e5c10ff9df46874f81ed3ec929e19cfd'
-        owner_id: 57468012
-        repo_id: 220391287
     'codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5':
         ref: 'v7.1.1'
         commit: 'sha1-303a32d7a59b442fa8d48b6a1cc6825c09c847a5'
