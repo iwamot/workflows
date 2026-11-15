@@ -14,7 +14,6 @@ iwamot's shared reusable GitHub Actions workflows.
 | `dependabot-auto-merge.yml` | Enable auto-merge for non-major Dependabot PRs. |
 | `dependency-review.yml` | Run `actions/dependency-review-action` on pull requests. |
 | `oide.yml` | Pull shared governance files with `iwamot/oide` and open an auto-merging PR when they drift. |
-| `release-ecr-public.yml` | Release a multi-arch Docker image to Amazon ECR Public (cosign-signed, SBOM-attested, build-provenance-attested). |
 | `release-ghcr.yml` | Release a multi-arch Docker image to `ghcr.io/<owner>/<repo>` (cosign-signed, SBOM-attested, build-provenance-attested). |
 | `release-homebrew-tap.yml` | Release a Go CLI as a Homebrew cask via `iwamot/homebrew-tap` (build-provenance-attested). |
 | `release-only.yml` | Create a GitHub Release from a pushed tag with auto-generated notes. |
@@ -260,40 +259,9 @@ jobs:
 
 ### Manual releases with artifacts
 
-`release-ghcr.yml`, `release-ecr-public.yml`, and `release-homebrew-tap.yml` accept the same optional `tag` input as `release-only.yml`. Add the `workflow_dispatch` tag input to the existing caller and pass it through `with.tag`. Grant `checks: read` and `statuses: read` in addition to that channel's existing permissions. Keep the current release workflow filename and production environment for trusted-publishing and OIDC policies.
+`release-ghcr.yml` and `release-homebrew-tap.yml` accept the same optional `tag` input as `release-only.yml`. Add the `workflow_dispatch` tag input to the existing caller and pass it through `with.tag`. Grant `checks: read` and `statuses: read` in addition to that channel's existing permissions. Keep the current release workflow filename and production environment for trusted-publishing and OIDC policies.
 
-The shared workflow resolves the tag and waits for the required CI before creating the draft. Every build, image version, cask update, and final release uses that tag. All assets are uploaded before the draft is published, preserving immutable releases. Manual execution still has the default-branch OIDC identity; AWS role policies for ECR must allow that branch when enabling manual releases.
-
-### `release-ecr-public.yml`
-
-End-to-end release pipeline that drafts a GitHub Release, builds and pushes a multi-arch (linux/amd64, linux/arm64) Docker image to Amazon ECR Public (`us-east-1`), signs the merged manifest with cosign, attaches an SPDX-JSON SBOM attestation, uploads a SLSA build provenance attestation, and publishes the Release. The `aws_role_arn` is assumed via OIDC. Runs in the `production` environment by default (override via the `environment` input).
-
-The caller must provide a `Dockerfile` at its repo root, and register the `AWS_ROLE_ARN` secret in the `production` environment.
-
-Egress is blocked: `harden-runner` allows the endpoints this pipeline reaches and nothing else. A caller whose release reaches another endpoint adds it with the `allowed_endpoints` input (whitespace separated `domain:port`), which takes effect on the next run instead of waiting for a release here.
-
-```yaml
-name: Release
-
-on:
-  push:
-    tags: ['v*.*.*']
-
-permissions: {}
-
-jobs:
-  release:
-    uses: iwamot/workflows/.github/workflows/release-ecr-public.yml@<sha> # vX.X.X
-    permissions:
-      contents: write
-      id-token: write
-      attestations: write
-      artifact-metadata: write
-    with:
-      registry_image: public.ecr.aws/xxxxxxxx/namespace/repo
-    secrets:
-      aws_role_arn: ${{ secrets.AWS_ROLE_ARN }}
-```
+The shared workflow resolves the tag and waits for the required CI before creating the draft. Every build, image version, cask update, and final release uses that tag. All assets are uploaded before the draft is published, preserving immutable releases.
 
 ### `release-ghcr.yml`
 
