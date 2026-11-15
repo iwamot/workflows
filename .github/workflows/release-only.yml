@@ -46,7 +46,7 @@ jobs:
             github.com:443
             ${{ inputs.allowed_endpoints }}
 
-      - uses: iwamot/actions/release-tag@597ad5f72751d4b28d3540b130dfd69e99274e87 # v2.14.0
+      - uses: iwamot/actions/release-tag@46b78398bf2468a79ef18c5644b7f0ad20b77387 # v2.15.0
         id: release-tag
         with:
           tag: ${{ inputs.tag || '' }}
