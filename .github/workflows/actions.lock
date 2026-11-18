@@ -18,7 +18,7 @@ workflows:
         - 'jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d'
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/dco.yml':
-        - 'kineticcafe/actions-dco@a52e56727ec21d6cdba26513826e1ae4a752d2fc'
+        - 'kineticcafe/actions-dco@e9627100b7f566546e67cde54bfa7d3790ab649b'
         - 'step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a'
     '.github/workflows/dependabot-auto-merge.yml':
         - 'dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98'
@@ -165,9 +165,9 @@ dependencies:
         commit: 'sha1-d5574b52816a478f9d4e6529a3f6ff17a8a36785'
         owner_id: 216188
         repo_id: 738284564
-    'kineticcafe/actions-dco@a52e56727ec21d6cdba26513826e1ae4a752d2fc':
-        ref: 'v3.2.1'
-        commit: 'sha1-a52e56727ec21d6cdba26513826e1ae4a752d2fc'
+    'kineticcafe/actions-dco@e9627100b7f566546e67cde54bfa7d3790ab649b':
+        ref: 'v4.0.0'
+        commit: 'sha1-e9627100b7f566546e67cde54bfa7d3790ab649b'
         owner_id: 11218112
         repo_id: 644944067
     'renovatebot/github-action@acdd6bda8b035c99ce59d5675816af2aa65a1774':
