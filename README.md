@@ -139,7 +139,7 @@ Run a caller-provided `compatibility.sh` under each Python version in the matrix
 
 Use this canonical name when invoking `mise install <tool>` explicitly — a short alias like `mise install uv` may install the binary but leave the shim inactive in a clean environment.
 
-`python-versions` must list every minor from the lower bound of `requires-python` in `pyproject.toml` through the `python` pin in `mise.toml`, and the workflow fails if it does not. The matrix is a second copy of a range the caller already declares, so raising either end without updating it would silently narrow or widen what is tested.
+`python-versions` must list every minor from the lower bound of `requires-python` in `pyproject.toml` through the `python` pin in `mise.toml`, and the workflow fails if it does not. When the Python project lives in a subdirectory, pass its path in `pyproject` (for example, `app/pyproject.toml`); `mise.toml` and `compatibility.sh` stay at the repository root. The matrix is a second copy of a range the caller already declares, so raising either end without updating it would silently narrow or widen what is tested.
 
 A typical script builds the wheel once and exercises it under the matrix Python in an isolated environment:
 
