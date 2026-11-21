@@ -7,6 +7,11 @@ on:
         description: 'JSON array of Python versions to test against (e.g. ''["3.11","3.12","3.13","3.14"]''). Must list every minor from the lower bound of `requires-python` in `pyproject.toml` through the `python` pin in `mise.toml`.'
         required: true
         type: string
+      pyproject:
+        description: 'Path to the `pyproject.toml` whose `requires-python` sets the lower bound of `python-versions`, relative to the repository root. Set it when the Python project lives in a subdirectory.'
+        required: false
+        type: string
+        default: pyproject.toml
 
 permissions: {}
 
@@ -36,12 +41,13 @@ jobs:
           persist-credentials: false
       - env:
           DECLARED: ${{ inputs.python-versions }}
+          PYPROJECT: ${{ inputs.pyproject }}
         run: |
           set -euo pipefail
 
-          floor=$(grep -m1 -oE 'requires-python[[:space:]]*=[[:space:]]*">=3\.[0-9]+' pyproject.toml | grep -oE '3\.[0-9]+$' || true)
+          floor=$(grep -m1 -oE 'requires-python[[:space:]]*=[[:space:]]*">=3\.[0-9]+' "$PYPROJECT" | grep -oE '3\.[0-9]+$' || true)
           if [ -z "$floor" ]; then
-            echo "pyproject.toml must declare requires-python with a >= lower bound."
+            echo "$PYPROJECT must declare requires-python with a >= lower bound."
             exit 1
           fi
 
