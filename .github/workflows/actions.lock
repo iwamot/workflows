@@ -34,13 +34,13 @@ workflows:
         - 'step-security/harden-runner@aebdcf6156ab6691adf63218240e476564a1ed4c'
     '.github/workflows/release-ghcr.yml':
         - 'docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550'
-        - 'iwamot/actions@3236ea780ac15c4e38173c05b18b0d0ac3679ee2'
+        - 'iwamot/actions@36800ea9a4338d93a76da45a27230bce01c59269'
         - 'step-security/harden-runner@aebdcf6156ab6691adf63218240e476564a1ed4c'
     '.github/workflows/release-homebrew-tap.yml':
-        - 'iwamot/actions@3236ea780ac15c4e38173c05b18b0d0ac3679ee2'
+        - 'iwamot/actions@36800ea9a4338d93a76da45a27230bce01c59269'
         - 'step-security/harden-runner@aebdcf6156ab6691adf63218240e476564a1ed4c'
     '.github/workflows/release-only.yml':
-        - 'iwamot/actions@3236ea780ac15c4e38173c05b18b0d0ac3679ee2'
+        - 'iwamot/actions@36800ea9a4338d93a76da45a27230bce01c59269'
         - 'step-security/harden-runner@aebdcf6156ab6691adf63218240e476564a1ed4c'
     '.github/workflows/renovate.yml':
         - 'actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9'
@@ -50,10 +50,10 @@ workflows:
         - 'step-security/harden-runner@aebdcf6156ab6691adf63218240e476564a1ed4c'
     '.github/workflows/validate-with-coverage.yml':
         - 'codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5'
-        - 'iwamot/actions@3236ea780ac15c4e38173c05b18b0d0ac3679ee2'
+        - 'iwamot/actions@36800ea9a4338d93a76da45a27230bce01c59269'
         - 'step-security/harden-runner@aebdcf6156ab6691adf63218240e476564a1ed4c'
     '.github/workflows/validate.yml':
-        - 'iwamot/actions@3236ea780ac15c4e38173c05b18b0d0ac3679ee2'
+        - 'iwamot/actions@36800ea9a4338d93a76da45a27230bce01c59269'
         - 'step-security/harden-runner@aebdcf6156ab6691adf63218240e476564a1ed4c'
 dependencies:
     'actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6':
@@ -71,11 +71,6 @@ dependencies:
         commit: 'sha1-3d3c42e5aac5ba805825da76410c181273ba90b1'
         owner_id: 44036562
         repo_id: 197814629
-    'actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510':
-        ref: 'v3.3.0'
-        commit: 'sha1-64ab729a6294000f5aa4a4bc0b73d1f32bc45510'
-        owner_id: 44036562
-        repo_id: 642580244
     'actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc':
         ref: 'v3.4.0'
         commit: 'sha1-f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc'
@@ -138,22 +133,22 @@ dependencies:
         commit: 'sha1-f87e5991a6d7451dcb8d9637bfbc97413f497069'
         owner_id: 5429470
         repo_id: 288485773
-    'iwamot/actions@3236ea780ac15c4e38173c05b18b0d0ac3679ee2':
-        ref: 'v2.16.0'
-        commit: 'sha1-3236ea780ac15c4e38173c05b18b0d0ac3679ee2'
+    'iwamot/actions@36800ea9a4338d93a76da45a27230bce01c59269':
+        ref: 'v2.16.1'
+        commit: 'sha1-36800ea9a4338d93a76da45a27230bce01c59269'
         owner_id: 16149
         repo_id: 1215968540
         uses:
             - 'actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6'
             - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
-            - 'actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510'
+            - 'actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc'
             - 'actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333'
             - 'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9'
             - 'anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c'
             - 'docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc'
             - 'docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302'
             - 'docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069'
-            - 'jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785'
+            - 'jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a'
             - 'sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532'
     'iwamot/oide@813dd99ac8d67b340170e4da4d2146478ec07c59':
         ref: 'v2.1.2'
@@ -163,11 +158,6 @@ dependencies:
     'jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a':
         ref: 'v5.2.10'
         commit: 'sha1-90f833d396d0cc3674b631d2d225e306476c303a'
-        owner_id: 216188
-        repo_id: 738284564
-    'jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785':
-        ref: 'v5.2.8'
-        commit: 'sha1-d5574b52816a478f9d4e6529a3f6ff17a8a36785'
         owner_id: 216188
         repo_id: 738284564
     'kineticcafe/actions-dco@e9627100b7f566546e67cde54bfa7d3790ab649b':

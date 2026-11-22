@@ -24,7 +24,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: iwamot/actions/mise-validate@3236ea780ac15c4e38173c05b18b0d0ac3679ee2 # v2.16.0
+      - uses: iwamot/actions/mise-validate@36800ea9a4338d93a76da45a27230bce01c59269 # v2.16.1
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
