@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       node-versions:
-        description: 'JSON array of Node.js versions to test against (e.g. ''["20","22","24"]''). Must list every even major from the lower bound of `engines.node` in `package.json` through the `node` pin in `mise.toml`.'
+        description: 'JSON array of Node.js versions to test against (e.g. ''["20","22","24"]''). Must list every LTS major (even majors through 26, every major from 27) from the lower bound of `engines.node` in `package.json` through the `node` pin in `mise.toml`.'
         required: true
         type: string
 
@@ -51,11 +51,12 @@ jobs:
             exit 1
           fi
 
-          expected=$(seq "$floor" 2 "$pin" | jq -Rsc 'split("\n")[:-1]')
+          # Odd majors through 26 never reached LTS; from 27 every major does.
+          expected=$(seq "$floor" "$pin" | awk '$1 % 2 == 0 || $1 >= 27' | jq -Rsc 'split("\n")[:-1]')
           actual=$(jq -c . <<<"$DECLARED")
 
           if [ "$expected" != "$actual" ]; then
-            echo "node-versions must list every even major from engines.node (>=$floor) through the mise pin ($pin)."
+            echo "node-versions must list every LTS major (even through 26, every one from 27) from engines.node (>=$floor) through the mise pin ($pin)."
             echo "  expected: $expected"
             echo "  actual:   $actual"
             exit 1

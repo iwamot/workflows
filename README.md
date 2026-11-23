@@ -90,7 +90,7 @@ jobs:
 
 Run a caller-provided `compatibility.sh` under each Node.js version in the matrix. The caller's `mise.toml` must declare `node` under `[tools]`; the matrix version is exported as `MISE_NODE_VERSION`, overriding that entry. The script defines what "compatibility" means; `mise` is preinstalled on the runner but no tools are installed, so the script must call `mise install` itself.
 
-`node-versions` must list every even major from the lower bound of `engines.node` in `package.json` through the `node` pin in `mise.toml`, and the workflow fails if it does not. Odd majors are skipped because they never reach LTS. The matrix is a second copy of a range the caller already declares, so raising either end without updating it would silently narrow or widen what is tested.
+`node-versions` must list every LTS major from the lower bound of `engines.node` in `package.json` through the `node` pin in `mise.toml`, and the workflow fails if it does not. Through Node.js 26 that is the even majors, since odd ones never reached LTS; from Node.js 27 every major becomes LTS, so every one is listed. The matrix is a second copy of a range the caller already declares, so raising either end without updating it would silently narrow or widen what is tested.
 
 A typical script builds the package once and exercises the packed tarball in an isolated directory:
 
