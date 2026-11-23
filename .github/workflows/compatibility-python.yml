@@ -45,13 +45,13 @@ jobs:
         run: |
           set -euo pipefail
 
-          floor=$(grep -m1 -oE 'requires-python[[:space:]]*=[[:space:]]*">=3\.[0-9]+' "$PYPROJECT" | grep -oE '3\.[0-9]+$' || true)
+          floor=$(python3 -c "import re, sys, tomllib; m = re.search(r'>=\s*(3\.[0-9]+)', tomllib.load(open(sys.argv[1], 'rb')).get('project', {}).get('requires-python', '')); print(m.group(1) if m else '')" "$PYPROJECT")
           if [ -z "$floor" ]; then
             echo "$PYPROJECT must declare requires-python with a >= lower bound."
             exit 1
           fi
 
-          pin=$(grep -m1 -oE '^python[[:space:]]*=[[:space:]]*"3\.[0-9]+' mise.toml | grep -oE '3\.[0-9]+$' || true)
+          pin=$(python3 -c "import re, tomllib; m = re.match(r'3\.[0-9]+', str(tomllib.load(open('mise.toml', 'rb')).get('tools', {}).get('python', ''))); print(m.group(0) if m else '')")
           if [ -z "$pin" ]; then
             echo "mise.toml must pin python under [tools]."
             exit 1

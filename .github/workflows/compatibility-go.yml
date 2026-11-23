@@ -45,7 +45,7 @@ jobs:
             exit 1
           fi
 
-          pin=$(grep -m1 -oE '^go[[:space:]]*=[[:space:]]*"1\.[0-9]+' mise.toml | grep -oE '1\.[0-9]+$' || true)
+          pin=$(python3 -c "import re, tomllib; m = re.match(r'1\.[0-9]+', str(tomllib.load(open('mise.toml', 'rb')).get('tools', {}).get('go', ''))); print(m.group(0) if m else '')")
           if [ -z "$pin" ]; then
             echo "mise.toml must pin go under [tools]."
             exit 1
