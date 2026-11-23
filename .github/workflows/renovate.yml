@@ -72,7 +72,8 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.RENOVATE_CONTAINERBASE_DIR }}
-          key: renovate-tools-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.run_id }}-${{ github.run_attempt }}
+          # Restores the newest entry; each entry is named after its contents.
+          key: renovate-tools-v1-${{ runner.os }}-${{ runner.arch }}-
           restore-keys: |
             renovate-tools-v1-${{ runner.os }}-${{ runner.arch }}-
 
@@ -145,10 +146,22 @@ jobs:
           # Lock provenance lookups need authenticated access, not the App write token.
           RENOVATE_CUSTOM_ENV_VARIABLES: '{"GITHUB_TOKEN":"${{ github.token }}"}'
 
+      - name: Name Renovate tool downloads
+        id: tool-key
+        if: ${{ !cancelled() && (steps.renovate.outcome == 'success' || steps.renovate.outcome == 'failure') }}
+        # A cache entry cannot be overwritten, so each one is named after the
+        # files it holds: a run that downloaded nothing new names the entry it
+        # restored and saves nothing, instead of adding a copy that only
+        # pushes the repository's other caches out.
+        run: |
+          set -euo pipefail
+          digest=$(sudo find "$RENOVATE_CONTAINERBASE_DIR" -type f -printf '%P %s\n' | LC_ALL=C sort | sha256sum | cut -c1-16)
+          printf 'key=renovate-tools-v1-%s-%s-%s\n' "$RUNNER_OS" "$RUNNER_ARCH" "$digest" >> "$GITHUB_OUTPUT"
+
       - name: Save Renovate tool downloads
         # Keep downloads from failed runs so the next retry can reuse them.
-        if: ${{ !cancelled() && (steps.renovate.outcome == 'success' || steps.renovate.outcome == 'failure') }}
+        if: ${{ steps.tool-key.outputs.key && steps.tool-key.outputs.key != steps.tool-cache.outputs.cache-matched-key }}
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ env.RENOVATE_CONTAINERBASE_DIR }}
-          key: ${{ steps.tool-cache.outputs.cache-primary-key }}
+          key: ${{ steps.tool-key.outputs.key }}
