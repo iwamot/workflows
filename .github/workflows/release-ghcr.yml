@@ -106,6 +106,7 @@ jobs:
             api.osv.dev:443
             auth.docker.io:443
             dhi.io:443
+            docker-images-prod.s3.dualstack.us-east-1.amazonaws.com:443
             files.pythonhosted.org:443
             fulcio.sigstore.dev:443
             ghcr.io:443
@@ -163,6 +164,7 @@ jobs:
             api.osv.dev:443
             auth.docker.io:443
             dhi.io:443
+            docker-images-prod.s3.dualstack.us-east-1.amazonaws.com:443
             files.pythonhosted.org:443
             fulcio.sigstore.dev:443
             ghcr.io:443
