@@ -24,4 +24,4 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: KineticCafe/actions-dco@e9627100b7f566546e67cde54bfa7d3790ab649b # v4.0.0
+      - uses: KineticCafe/actions-dco@e4595310c8e9871bea33cdf1c9ef9b2cdb9cb3d6 # v4.0.1
