@@ -46,7 +46,7 @@ workflows:
         - 'actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9'
         - 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'
         - 'actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc'
-        - 'renovatebot/github-action@7b402fe76b7bc4273576663a09be2f0f85266e2f'
+        - 'renovatebot/github-action@1376d90bcd3a4d4e7393ae762eea56ac684aee38'
         - 'step-security/harden-runner@aebdcf6156ab6691adf63218240e476564a1ed4c'
     '.github/workflows/validate-with-coverage.yml':
         - 'codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5'
@@ -165,9 +165,9 @@ dependencies:
         commit: 'sha1-e4595310c8e9871bea33cdf1c9ef9b2cdb9cb3d6'
         owner_id: 11218112
         repo_id: 644944067
-    'renovatebot/github-action@7b402fe76b7bc4273576663a09be2f0f85266e2f':
-        ref: 'v47.0.0'
-        commit: 'sha1-7b402fe76b7bc4273576663a09be2f0f85266e2f'
+    'renovatebot/github-action@1376d90bcd3a4d4e7393ae762eea56ac684aee38':
+        ref: 'v48.0.0'
+        commit: 'sha1-1376d90bcd3a4d4e7393ae762eea56ac684aee38'
         owner_id: 38656520
         repo_id: 252754603
     'sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532':
